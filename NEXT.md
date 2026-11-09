@@ -1,6 +1,33 @@
 # NEXT
 
-## ▶ Next session: roll every clone to **v1.6.2** (`foundation-rollout` skill). Model: Sonnet for the mechanics.
+## ▶ Next session: scorecard gap plan, **Step 0 re-score** (`audit/GAP-PLAN-2026-11-09.md`). Model: Sonnet (read-only sweep).
+Re-score the 13 live rows with `audit/rescore/`, batches of 4. Then Step 1, which the owner has already decided (2026-11-09):
+retire the design bridge row, add an "accepted" state (a cell needs a decision-log row in its project first), and add
+clone rows (F-15: yes, clone-owned code only). Re-cut Steps 2 to 4 from the fresh data. Publish to the same scorecard URL.
+Also owed: template patch v1.6.3 for **BACKLOG F-17** (the F-09 unit test fails in module-removed clones). Seven clones
+already carry the fix lines, so the merge will be clean.
+
+## ✅ 2026-11-09: every clone is on **v1.6.2** (13 PRs merged; earmark is the owner's, boxloop is on hold)
+
+| Clone | PR | Merge | Production | Notes |
+|---|---|---|---|---|
+| pulseboard | #6 | ce2d574 | not deployed | |
+| loanbook | #7 | 557b487 | not deployed | e2e first failed: F-08's child-process seed ran `seedDemoBook()`, whose book-wide accrual/status charged fees on loans.spec's loans. Owner chose D33 (skip the book when `TEST_WORKER_INDEX` is set) |
+| adjuster | #6 | 7fd88f7 | not deployed | |
+| bracketry | #5 | 22e6143 | not deployed | |
+| housefile | #12 | 9463f76 | not deployed | `main` only |
+| footnote | #4 | 3c9b0c7 | not deployed | F-17 test patched; apikeys stays removed |
+| ledgerleave | #7 | 6e1ae9e | auto-deployed, Ready, 401 | F-17 |
+| commons | #18 | dab862d | not deployed | F-17; F-14 ci.yml conflict |
+| coursework | #6 | 0a91945 | not deployed | F-17; F-14 |
+| quorum | #7 | 5999bc4 | not deployed | F-17; F-14; README conflict |
+| gavel | #6 | 1ad1934 | auto-deployed, Ready, 401 | F-17; F-14; kept its own e2e demo flows |
+| callboard | #21 | ee3c2f5 | hook redeploy, Ready, 401 | F-06 patch row dropped |
+| tradepost | #6 | 824bfc3 | hook redeploy, Ready, 401 | hand port; D-031 |
+
+Template audit: production 0; dev-only `minimatch` advisory logged as BACKLOG F-16.
+
+## (done) roll every clone to **v1.6.2**
 v1.6.2 released 2026-11-09 (PR #15 merged `51fbd33`, tag pushed to the template only; push it to each clone repo first).
 No migration, no env change. Per-clone notes from the CHANGELOG 1.6.2 entry:
 - **F-06** `Org.events` → `orgEvents`: callboard drops its `FOUNDATION_PATCHES.md` rename row; expect a merge conflict on that line.

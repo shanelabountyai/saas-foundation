@@ -1,6 +1,18 @@
 # NEXT
 
-## ▶ Next session: template v1.6.2 from BACKLOG F-06, F-08, F-09, F-11 to F-14 (rollout fallout). Model: Sonnet for the mechanics; F-09 and F-12 touch RLS migration output and upgrade claims, so Opus.
+## ▶ Next session: roll every clone to **v1.6.2** (`foundation-rollout` skill). Model: Sonnet for the mechanics.
+v1.6.2 released 2026-11-09 (PR #15 merged `51fbd33`, tag pushed to the template only; push it to each clone repo first).
+No migration, no env change. Per-clone notes from the CHANGELOG 1.6.2 entry:
+- **F-06** `Org.events` → `orgEvents`: callboard drops its `FOUNDATION_PATCHES.md` rename row; expect a merge conflict on that line.
+- **F-14** CI enforce step: coursework, quorum, gavel hand-edited the DB name; take the template's lines (conflict expected).
+- **F-08** e2e specs: callboard and tradepost patched `security-pages.spec.ts`/`demo.spec.ts`; take the template's unless their
+  slugs/org names differ (tradepost's do: keep its demo orgs, take the seeding + nav change).
+- gavel keeps its billing stub pair (D-102); nothing to undo.
+Open owner decision: **BACKLOG F-15**, add clone rows to the scorecard or keep the disclaimer (page version 10 says clones are not scored).
+
+## ✅ 2026-11-09: v1.6.2 released (BACKLOG F-06, F-08, F-09, F-11 to F-14). Scorecard republished (versions 9 and 10).
+
+## (done) template v1.6.2 from BACKLOG F-06, F-08, F-09, F-11 to F-14 (rollout fallout). Model: Sonnet for the mechanics; F-09 and F-12 touch RLS migration output and upgrade claims, so Opus.
 (done 2026-11-09: scorecard republished, version 9, foundation row v1.6.1, 286 pass + 21 skipped.)
 
 ## ✅ 2026-11-09: v1.6.x rollout done. Every clone is on **v1.6.1** (measured `FOUNDATION_VERSION` on each `origin/main`)

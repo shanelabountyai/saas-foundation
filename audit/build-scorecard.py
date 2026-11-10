@@ -64,7 +64,7 @@ def cell(status, text, ev, basis):
     return {"s": status, "text": text, "evidence": ev, "secs": sorted(set(re.findall(r"SEC-\d+", text + " " + ev)), key=lambda x:int(x[4:])), "basis": basis}
 import os
 RESC = {st: json.load(open(f"rescore/{st}.json")) for st in REPOS if os.path.exists(f"rescore/{st}.json")}
-out = {"asOf": "2026-09-26", "foundationVersion": open("../FOUNDATION_VERSION").read().strip(), "keys": NAMES, "rows": []}
+out = {"asOf": "2026-11-10", "foundationVersion": open("../FOUNDATION_VERSION").read().strip(), "keys": NAMES, "rows": []}
 f = {k: cell("✔", v[0] + " tests green (npm test, 286 pass + 21 skipped, 2026-11-09)", v[1], "verified") for k, v in FOUNDATION.items()}
 out["rows"].append({"id": "foundation", "name": "saas foundation (template)", "cells": f})
 for stem, name in REPOS.items():
@@ -76,10 +76,11 @@ for stem, name in REPOS.items():
             raw[m.group(1)] = c[1:]
     cells = {}
     for k in KEYS:
-        if k in OVERRIDES.get(stem, {}):
+        # 2026-11-10 re-score wins over older OVERRIDES, except the Opus K4 sweeps (more thorough than the Sonnet pass)
+        if k in OVERRIDES.get(stem, {}) and (k == "K4" or k not in RESC.get(stem, {})):
             s, t, e, *b = OVERRIDES[stem][k]; cells[k] = cell(s, t, e, b[0] if b else "verified 2026-09-25")
         elif k in RESC.get(stem, {}):
-            c = RESC[stem][k]; cells[k] = cell(c["s"], c["text"], c.get("evidence", ""), "rescored 2026-09-25 (agent sweep)")
+            c = RESC[stem][k]; cells[k] = cell(c["s"], c["text"], c.get("evidence", ""), "rescored 2026-11-10 (agent sweep)")
         elif k in raw:
             s, t = split(raw[k][0]); cells[k] = cell(s, t, raw[k][1] if len(raw[k]) > 1 else "", "baseline 2026-09-23")
         else:

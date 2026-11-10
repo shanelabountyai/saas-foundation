@@ -1,11 +1,22 @@
 # NEXT
 
-## ▶ Next session: scorecard gap plan, **Step 0 re-score** (`audit/GAP-PLAN-2026-11-09.md`). Model: Sonnet (read-only sweep).
-Re-score the 13 live rows with `audit/rescore/`, batches of 4. Then Step 1, which the owner has already decided (2026-11-09):
-retire the design bridge row, add an "accepted" state (a cell needs a decision-log row in its project first), and add
-clone rows (F-15: yes, clone-owned code only). Re-cut Steps 2 to 4 from the fresh data. Publish to the same scorecard URL.
-Also owed: template patch v1.6.3 for **BACKLOG F-17** (the F-09 unit test fails in module-removed clones). Seven clones
-already carry the fix lines, so the merge will be clean.
+## ▶ Next session: scorecard gap plan, **Step 0 publish, then Step 1** (`audit/GAP-PLAN-2026-11-09.md`). Model: Sonnet.
+**Step 0 re-score is DONE (2026-11-10):** all 14 non-bridge rows re-scored (Sonnet, read-only); `audit/rescore/*.json` (14 files, validated),
+`build-scorecard.py` rebuilt `audit/scorecard.json` (asOf 2026-11-10; the re-score now wins over old OVERRIDES except K4 where an Opus sweep exists),
+`scorecard.template.html` scope text updated. Open cells (✗ or ?) went **92 -> 70**.
+**Not yet published.** The publish to https://claude.ai/artifact/TognMvisj8T9GNQGtE9MbJ was refused: the live source must be Read in full first
+(`~/.claude/projects/-Users-shanelabounty-Projects-saas-foundation/61ff39f0-8df1-442e-b54b-34c8b671c321/tool-results/artifact-d91255cc-1794254217-07dc.html`,
+1909 lines, ~46k tokens: read it in two or three offset/limit chunks in a FRESH session; it will not fit after a long one). Then build the page:
+replace `__DATA__` in `audit/scorecard.template.html` with `audit/scorecard.json` and publish with `url` and the same file path.
+**What moved (old -> new):** storage 8 cells to ✔ (K1 K2 K4 K5 K6 K7 K9 K14; SEC-01/02/07 all fixed; K4 caveat: `confirmCorrection` and
+`ledger-exceptions` still do unscoped `lease.findUnique` echo reads, untraced; K6 borderline, no `no-store`); event toolkit 6 cells (K1 K6 K8 K10 K13 K14);
+bookable 5 (K4 K5 K8 K14 up, K13 ?->✗); alongside K9 K14; countertop K14; claude-dashboard K10; trio K12; groundwork K5 up, **K14 down** (new cron `!==`).
+No change: clinic, rental, reservations, showcall, talk4me, use-case-studio (reservations SEC-01..08 all still open).
+**Re-cut Steps 2 to 4:** the plan's Step 2 order is stale. Event toolkit (the one public app) is down to K2, K5, K11, K12 (4 gaps); storage is down to K11, K12,
+and the memory note "storage stays private until SEC-01/02" is now met (verify K4 echo reads first). Biggest open rows now: reservations (10 gaps, deployed,
+SMS webhook has no timestamp window), use-case-studio (9, INTAKE_KEY fails open), showcall (8), countertop (8).
+Then **Step 1** (owner-decided 2026-11-09): retire the design bridge row, add the "accepted" state (needs a decision-log row in the project first), add clone rows (F-15,
+clone-owned code only). Also owed: template patch v1.6.3 for **BACKLOG F-17**.
 
 ## ✅ 2026-11-09: every clone is on **v1.6.2** (13 PRs merged; earmark is the owner's, boxloop is on hold)
 

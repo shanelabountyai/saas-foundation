@@ -1,14 +1,15 @@
 # NEXT
 
-## ▶ Next session: scorecard gap plan **Step 1, item 3 (BACKLOG F-15, clone rows)**, then Step 2. Model: Sonnet for the clone sweeps (one agent per clone, clone-owned code only: `src/app`, domain dirs); Opus for Step 2.
-**Step 1 items 1 and 2 DONE (2026-11-13), scorecard version 12** (https://claude.ai/artifact/TognMvisj8T9GNQGtE9MbJ): design bridge row retired
-(`RETIRED` in `audit/build-scorecard.py`, template renders a grey row, not counted); `≈` accepted state added (legend, `.s-acc`, never counted as ✔).
-**No cell is marked `≈` yet.** Rule: a project decision-log row first, then put `("≈", "<reason>, D-xxx", evidence)` in OVERRIDES. Candidates: clinic K1/K2/K6,
-countertop + reservations K1/K2, showcall K1/K2/K3, claude-dashboard K3/K8, talk4me K11 (each needs its row in that project's log).
-Republish: build `audit/scorecard.template.html` with `__DATA__` replaced by `audit/scorecard.json`, read the live source in full first, then resend.
-**Re-cut Step 2 (from Step 0 data):** event toolkit K2, K5, K11, K12 (public app); storage K11, K12 (verify K4 echo reads first, then the "stays private" note is met);
-then reservations (10 gaps, SMS webhook has no timestamp window), use-case-studio (INTAKE_KEY fails open), showcall (8), countertop (8).
-Also owed: template patch v1.6.3 for **BACKLOG F-17**.
+## ▶ Next session: scorecard gap plan **Step 2** (Opus, one project per session). Order: event toolkit (K2, K5, K11, K12), storage (K11, K12), reservations, use-case-studio, showcall, countertop.
+**Step 1 DONE (2026-11-13), scorecard version 13** (https://claude.ai/artifact/TognMvisj8T9GNQGtE9MbJ): items 1-2 earlier (design bridge retired, `≈` state);
+**item 3 (BACKLOG F-15) closed: 14 clone rows added**, one Sonnet sweep each against `origin/main` (data `audit/rescore/clones/<name>.json`, built by `build-scorecard.py` `CLONES`;
+boxloop is a paused row). Results: bracketry, coursework, earmark, loanbook, pulseboard, quorum clean (0 ✗); adjuster 1, commons 1, gavel 1, housefile 1, ledgerleave 1, tradepost 1, callboard 3, footnote 3.
+**Clone findings worth a template change:** the demo gate reads `DEMO_ACCESS_PASSWORD`/`VERCEL` from `process.env` outside `src/core/env.ts` and omits it from `.env.example`
+(K11 ✗ in ledgerleave, gavel, tradepost, callboard): fix once in the template as v1.6.3 (with F-17), then clones inherit it.
+Other ✗: adjuster K4 (no org column, D73, candidate for `≈`); commons K11 `UPLOAD_ROOT`; housefile K14 port 5500 on `main`; footnote K5 (`/api/answers` unlimited, paid LLM calls), K11, K13 (key/role grants unaudited);
+callboard K6 (`/p/*` referrer, no per-link revoke), K9 (Twilio inbound replayable), K11. Clone rows show a Re-check button that nothing services (cosmetic).
+Earlier `≈` candidates and republish recipe: build `audit/scorecard.template.html` with `__DATA__` replaced by `audit/scorecard.json`; read the live source in full first (saved to tool-results), then resend.
+Also owed: template patch v1.6.3 for **BACKLOG F-17** plus the demo-gate env fix above.
 
 ## ✅ 2026-11-09: every clone is on **v1.6.2** (13 PRs merged; earmark is the owner's, boxloop is on hold)
 

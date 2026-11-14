@@ -67,7 +67,7 @@ def cell(status, text, ev, basis):
     return {"s": status, "text": text, "evidence": ev, "secs": sorted(set(re.findall(r"SEC-\d+", text + " " + ev)), key=lambda x:int(x[4:])), "basis": basis}
 import os
 RESC = {st: json.load(open(f"rescore/{st}.json")) for st in REPOS if os.path.exists(f"rescore/{st}.json")}
-out = {"asOf": "2026-11-10", "foundationVersion": open("../FOUNDATION_VERSION").read().strip(), "keys": NAMES, "rows": []}
+out = {"asOf": "2026-11-13", "foundationVersion": open("../FOUNDATION_VERSION").read().strip(), "keys": NAMES, "rows": []}
 f = {k: cell("✔", v[0] + " tests green (npm test, 286 pass + 21 skipped, 2026-11-09)", v[1], "verified") for k, v in FOUNDATION.items()}
 out["rows"].append({"id": "foundation", "name": "saas foundation (template)", "cells": f})
 for stem, name in REPOS.items():
@@ -91,6 +91,12 @@ for stem, name in REPOS.items():
     row = {"id": stem, "name": name, "cells": cells}
     if stem in RETIRED: row["retired"] = RETIRED[stem]
     out["rows"].append(row)
+# Clone rows (F-15, 2026-11-13): clone-owned code only, one Sonnet sweep per clone against origin/main at v1.6.x.
+CLONES = ["adjuster","bracketry","callboard","commons","coursework","earmark","footnote","gavel","housefile","ledgerleave","loanbook","pulseboard","quorum","tradepost"]
+for c in CLONES:
+    d = json.load(open(f"rescore/clones/{c}.json"))
+    out["rows"].append({"id": "clone-"+c, "name": c+" (clone)", "cells": {k: cell(v["s"], v["text"], v.get("evidence",""), "clone sweep 2026-11-13 (agent, origin/main)") for k, v in d.items()}})
+out["rows"].append({"id": "clone-boxloop", "name": "boxloop (clone)", "cells": {}, "retired": "paused, not scored (on hold since 2026-10-19, still on v1.2.1)"})
 json.dump(out, open("scorecard.json", "w"), indent=1, ensure_ascii=False)
 tot = {}
 for r in out["rows"]:

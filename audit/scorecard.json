@@ -1,5 +1,5 @@
 {
- "asOf": "2026-11-10",
+ "asOf": "2026-11-13",
  "foundationVersion": "v1.6.2",
  "keys": {
   "K1": "Sessions",
@@ -1847,6 +1847,1468 @@
      "basis": "rescored 2026-11-10 (agent sweep)"
     }
    }
+  },
+  {
+   "id": "clone-adjuster",
+   "name": "adjuster (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed",
+     "evidence": "diff -rq against template: src/core and tests/invariants identical",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed",
+     "evidence": "diff -rq against template: src/core and tests/invariants identical",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "Clone-owned pages call requireOrg and the rule-set actions go through orgAction with notRef ids; no new route handlers or unguarded use server exports.",
+     "evidence": "src/app/o/[org]/rules/[id]/actions.ts:15-52; src/app/o/[org]/claims/[id]/page.tsx:16; src/app/o/[org]/rules/page.tsx:10",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✗",
+     "text": "Claims, documents, decisions and rule sets have no org column; the claim page reads a claim by id for any signed-in org member of any org. Deliberate (D73, global single-administrator model) but it is not tenant scoping.",
+     "evidence": "src/app/o/[org]/claims/[id]/page.tsx:17-18; prisma/schema/adjudication.prisma:45-57; docs/decisions.md:227",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed",
+     "evidence": "diff -rq against template: src/core and tests/invariants identical",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed",
+     "evidence": "diff -rq against template: src/core and tests/invariants identical",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed",
+     "evidence": "diff -rq against template: src/core and tests/invariants identical",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Clone adds no secrets or compares; the cron route still uses the core isAuthorizedCron guard.",
+     "evidence": "src/app/api/cron/route.ts:11",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed",
+     "evidence": "diff -rq against template: src/core and tests/invariants identical",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed",
+     "evidence": "diff -rq against template: src/core and tests/invariants identical",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✔",
+     "text": "Services read env via core env (src/adjudication/pool.ts); only scripts read process.env.DATABASE_URL, which is listed in .env.example. No new variables.",
+     "evidence": "src/adjudication/pool.ts:6,11; scripts/seed-decisions.ts:151; .env.example:3",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Service pool runs the core local-DB guard and CI uses a local Postgres; the clone's dev scripts open pg directly from DATABASE_URL without the guard (minor, not a test path). e2e build unchanged.",
+     "evidence": "src/adjudication/pool.ts:6; scripts/decisions-verify.ts:13; .github/workflows/ci.yml:31",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Clone privileged mutations (publish, override, tier grant, status change, payment) insert AuditEvent in the same statement or transaction as the change.",
+     "evidence": "src/adjudication/drafts.ts:92,123; src/adjudication/authority.ts:11; src/adjudication/claim-status.ts:69; src/adjudication/pipeline.ts:144",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "ignoreCommand matches the standard line, port 4900 is the config default in package.json and playwright config, and the single cron route stays behind the core cron guard.",
+     "evidence": "vercel.json:4; package.json dev/start -p 4900; playwright.config.ts:4; src/app/api/cron/route.ts:11",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-bracketry",
+   "name": "bracketry (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and tests/invariants identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and tests/invariants identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "All clone-owned server actions are built with orgAction (guard + role + zod ref validation) and season pages call requireOrg; the public /l routes are annotated public and read-only.",
+     "evidence": "src/app/o/[org]/seasons/actions.ts:44; src/app/o/[org]/seasons/version-actions.ts:30; src/app/o/[org]/seasons/page.tsx:11; src/app/l/[org]/[season]/page.tsx:1",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Clone queries scope by inOrg(ctx)/orgId and refs are typed; the anonymous league reads derive orgId from the published version/link and filter every placement/bracket query by it. Export hooks filter by orgId.",
+     "evidence": "src/app/o/[org]/seasons/version-actions.ts:166,181; src/app/l/public-league.ts:150-170; src/app/export-hooks.ts:10-25",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "The three unauthenticated clone routes (league page, preview page, calendar.ics) call the shared DB-backed hit() with LIMITS.shareReadPerIp before any read; the clone adds no other public writes.",
+     "evidence": "src/app/l/[org]/[season]/page.tsx:15; src/app/l/[org]/[season]/preview/[token]/page.tsx:17; src/app/l/[org]/[season]/calendar.ics/route.ts:13",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "✔",
+     "text": "Preview links are minted by hand outside src/core/share, but meet the contract: newToken, hashToken at rest, required expiry, audited, revoked via core revokeShareLink, noindex and no-referrer, one 404 for misses. Residual risk is that the clone owns the projection and mint path rather than the core registry.",
+     "evidence": "src/app/o/[org]/seasons/version-actions.ts:165-177; src/app/l/[org]/[season]/preview/[token]/page.tsx:14; src/app/l/public-league.ts:195",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and tests/invariants identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and tests/invariants identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and tests/invariants identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and tests/invariants identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✔",
+     "text": "Clone reads env only through src/core/env (version-actions uses env.APP_URL); the only raw process.env uses are dev scripts (db-setup, check-modules), not app code. No new env var names introduced.",
+     "evidence": "src/app/o/[org]/seasons/version-actions.ts:177; scripts/db-setup.ts:16",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and tests/invariants identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Clone privileged mutations (publish, pins, results, voids, withdrawals, brackets, standings config, preview link create/revoke, rules) call audit() in the same transaction; audit table and its DB enforcement are inherited.",
+     "evidence": "src/app/o/[org]/seasons/version-actions.ts:107,141,156,173; src/app/o/[org]/seasons/result-actions.ts:67,90; src/app/o/[org]/seasons/withdraw-actions.ts:56",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "vercel.json identical to the template (ignoreCommand intact), own port 5100 in package.json and playwright.config.ts, no clone cron routes (inherited cron route untouched).",
+     "evidence": "vercel.json; package.json:8,10,19,21; playwright.config.ts:4",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-callboard",
+   "name": "callboard (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core (unchanged)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core (unchanged)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "All clone server actions are orgAction/ref-wrapped; public /p/[token] routes and the Twilio inbound route are documented public with token/signature as credential and a same-origin check.",
+     "evidence": "src/app/o/[org]/people/actions.ts:17; src/app/p/[token]/act/route.ts:31-35; src/app/api/sms/inbound/route.ts:11",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Clone reads/writes by id carry orgId (inOrg(ctx) or link-derived scope incl. eventId/personId); remaining findUniqueOrThrow calls take ids from already-scoped rows.",
+     "evidence": "src/app/p/[token]/act/route.ts:50-60; src/app/p/[token]/respond/route.ts:25; src/lib/swaps.ts:104-158; src/lib/dayof.ts:84-85",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "Anonymous /p/[token] reads and all three POST routes go through readPersonLink, which uses the shared DB-backed hit() limiter per IP; the SMS webhook is signature-gated.",
+     "evidence": "src/lib/links.ts:31-33; src/app/p/[token]/act/route.ts:34",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "✗",
+     "text": "Person links are hashed and expiring, but the clone removed no-referrer on /p/* (relies on global strict-origin-when-cross-origin, so same-origin Referer carries the token path) and has no per-link revoke; the only kill switch is rotating AUTH_SECRET.",
+     "evidence": "next.config.ts:27-36; next.config.ts:5; src/lib/links.ts:8-13",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Global headers are unchanged; the clone only adds noindex/no-store for /p/*.",
+     "evidence": "next.config.ts:5; next.config.ts:31-35",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Demo password gate hashes then timingSafeEquals, fails closed (503) on Vercel when unset; Twilio signature uses core safeEqual; cron route is the core guard.",
+     "evidence": "src/lib/demo-gate.ts:13-23; src/lib/inbound.ts:19-20; src/core/cron.ts:10",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "✗",
+     "text": "The Twilio inbound webhook verifies the signature but has no timestamp window and no idempotent claim (MessageSid is never recorded), so a captured signed request can be replayed and re-applied.",
+     "evidence": "src/app/api/sms/inbound/route.ts:11-19; src/lib/inbound.ts:19-20",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "No console/logger calls in clone code and no tokens or message bodies logged; SMS goes through the core outbox.",
+     "evidence": "src/lib, src/app/p, src/app/api (grep console. empty)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✗",
+     "text": "DEMO_ACCESS_PASSWORD (and VERCEL) are read straight from process.env in the proxy/gate, bypassing src/core/env.ts, and DEMO_ACCESS_PASSWORD is missing from .env.example.",
+     "evidence": "src/lib/demo-gate.ts:16-18; src/proxy.ts:7; .env.example (no DEMO_ACCESS_PASSWORD)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Clone only adds Playwright env (DEMO_ACCESS_PASSWORD blank, workers 1) and its own port; test-DB guard and production-build webServer are untouched.",
+     "evidence": "playwright.config.ts:4-19",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Clone mutations audit via core audit() either in the action or the shared lib (broadcast.sent/resent, person.*, card.*, alert.resolve, assignment.*); the append-only DB enforcement is inherited.",
+     "evidence": "src/lib/broadcast.ts:55,72; src/app/p/[token]/act/route.ts:89,100; src/app/o/[org]/people/actions.ts:68",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "ignoreCommand is intact, port 4600 is the config default, and the cron stays on the core /api/cron guard (schedule changed to daily 13:00 UTC; the 5-minute day-of comment in cron-jobs.ts is a functional note, not a guard gap).",
+     "evidence": "vercel.json:5-10; playwright.config.ts:4; src/app/cron-jobs.ts",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-commons",
+   "name": "commons (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "All clone server actions are orgAction-wrapped; the two upload route handlers call requireOrg first.",
+     "evidence": "src/app/o/[org]/f/actions.ts:37; src/app/o/[org]/f/uploads/route.ts:20; src/app/o/[org]/f/uploads/[id]/route.ts:10",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Clone queries carry orgId (e.g. post lookup, upload serving) and RLS policies were added for clone tables; not-found for cross-org.",
+     "evidence": "src/app/o/[org]/f/uploads/route.ts:22; prisma/migrations/20261109000000_rls_policies_commons",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "No unauthenticated writes added; authenticated forum actions use a DB-backed sliding-window LimitHit store under advisory lock.",
+     "evidence": "src/forum/limits-store.ts:21-30",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "N/A",
+     "text": "Clone mints no capability links; no public token routes.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "N/A",
+     "text": "Billing and the Stripe webhook were removed; clone adds no webhooks.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Clone logs only pathname/content-type and error name/message in the upload route; no tokens or bodies.",
+     "evidence": "src/app/o/[org]/f/uploads/route.ts:19,39",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✗",
+     "text": "UPLOAD_ROOT is read directly from process.env outside src/core/env.ts and is absent from .env.example.",
+     "evidence": "src/forum/uploads.ts:16; .env.example (no UPLOAD_ROOT); src/core/env.ts (no UPLOAD_ROOT)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Test scripts use .env.test with local DB and e2e builds then serves; core guard untouched.",
+     "evidence": "package.json:17-22",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Forum mutations call audit(); ModerationAction is an append-only table (DB trigger) for moderator actions.",
+     "evidence": "src/app/o/[org]/f/actions.ts (11 audit calls); prisma/migrations/20261029200000_commons_moderation/migration.sql:3",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "Port 7500 in config; vercel.json unchanged; the clone's cron additions run inside the template's guarded cron job hook.",
+     "evidence": "playwright.config.ts:4; package.json:19,21; src/app/cron-jobs.ts:18-26",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-coursework",
+   "name": "coursework (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core/auth (identical to template)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core/auth (identical to template)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "All clone server actions go through orgAction with a permission (or null for the learner's own act) and all clone pages call requireOrg; no clone route handlers added.",
+     "evidence": "src/app/o/[org]/catalog/actions.ts:30; src/app/o/[org]/cohorts/actions.ts:27; src/app/o/[org]/learners/actions.ts:20; src/app/o/[org]/archive/actions.ts:11; src/app/o/[org]/me/page.tsx:8",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Every by-id read in clone actions is scoped with orgId (learner, cohort, submission, catalogVersion) and returns notFound otherwise; secondary ids (assignment via cohort, member via orgId_userId) are checked too; RLS policies regenerated for the clone models.",
+     "evidence": "src/app/o/[org]/cohorts/actions.ts:20,32-34,53; src/app/o/[org]/learners/actions.ts:15,22; src/app/o/[org]/catalog/actions.ts:20; prisma/migrations/20261108000004_rls_policies_coursework/migration.sql",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "Clone adds no unauthenticated writes or token reads; all new surface is behind org auth.",
+     "evidence": "src/core (identical to template)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "✔",
+     "text": "Clone mints no capability links; share surface inherited.",
+     "evidence": "src/core (identical to template)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "next.config.ts is identical to the template, security headers unchanged.",
+     "evidence": "next.config.ts",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Clone adds no secret comparisons or cron routes; src/app/api/cron/route.ts is inherited unchanged.",
+     "evidence": "src/core (identical to template)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "N/A",
+     "text": "Billing module and its Stripe webhook were removed (billing_removed migration, inv-12 test dropped, cross-org allowlist entry removed); the clone adds no webhook.",
+     "evidence": "prisma/migrations/20261026100000_billing_removed; src/core/db/cross-org.ts",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "No console/logger calls in clone code (src/course, src/graph, src/app/o).",
+     "evidence": "grep of src/course src/graph src/app/o",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✔",
+     "text": "Clone code reads no env vars outside src/core/env.ts (only inherited scripts/db-setup.ts and foundation-check-modules.ts touch process.env); .env.example is identical to the template.",
+     "evidence": ".env.example",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Test-DB guard and src/core unchanged; CI points at a local coursework_test Postgres, and e2e/start:test use the production build scripts (only the port differs).",
+     "evidence": "package.json:25-27; .github/workflows/ci.yml:23",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Every clone privileged mutation calls audit() in the same transaction (archive, completions, cohorts, grades, learners), and the clone adds DB append-only triggers on its own tables.",
+     "evidence": "src/course/archive.ts:54; src/course/grades.ts:50,68; src/course/learners.ts:30,43; prisma/migrations/20261026000000_coursework_init/migration.sql:337-353",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "Own port 7400 set as default in package.json and playwright.config.ts; vercel.json unchanged from the template (ignoreCommand inherited); no clone cron routes.",
+     "evidence": "package.json:8,10; playwright.config.ts:4",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-earmark",
+   "name": "earmark (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed",
+     "evidence": "src/core/authz/permissions.ts:11 (only adds guest: [])",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited; the only change is the guest role with no core grants, which FOUNDATION_PATCHES says is not MFA-gated (guard gates owner/admin only). Guests hold only invoice.submit.",
+     "evidence": "src/core/authz/permissions.ts:11; src/earmark/core.ts:28",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "All clone mutations are built with orgAction (ref() ids) plus requirePerm; clone pages call requireOrg and the audit CSV and export routes are inherited. The one clone-owned cron job is wired through the core /api/cron.",
+     "evidence": "src/earmark/actions.ts:1-5,38; src/app/o/[org]/lines/[id]/page.tsx:15; src/app/cron-jobs.ts:11",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Every by-id read goes through findFirst with inOrg(ctx) inside withOrg (RLS on, 68 ENABLE/FORCE statements in the earmark policy migration), and guests are narrowed by scopeOf to one agency with not-found on miss. The cross-org alerts cron is allowlisted in cross-org.ts and works per org with withOrg.",
+     "evidence": "src/earmark/core.ts:44-57; src/earmark/actions.ts:51-52,94,270-271; src/core/db/cross-org.ts:19; prisma/migrations/20261109000002_rls_policies_earmark/migration.sql",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "N/A",
+     "text": "Clone adds no unauthenticated writes or public forms; its routes and actions all require an org session.",
+     "evidence": "src/app/o/[org] (no public routes added)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "N/A",
+     "text": "Clone mints no capability links; guest access is by membership with an agency tie, and the guest projection is an allowlist.",
+     "evidence": "src/earmark/core.ts:63-79",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed",
+     "evidence": "next.config.ts identical to template",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "No secret handling added; the new cron job runs behind the unchanged core /api/cron guard and the clone reads no secrets.",
+     "evidence": "src/app/cron-jobs.ts:11; src/app/api/cron/route.ts (identical to template)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "N/A",
+     "text": "Billing module and its Stripe webhook were removed and the clone adds no inbound webhooks; only the inherited outbound apikeys webhooks remain.",
+     "evidence": "src/modules (billing absent); tests/invariants (inv-12 absent)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Clone code has no console logging or token/body logging; alert emails go through the core sendEmail and the audit row stores only a seat and recipient count.",
+     "evidence": "src/earmark/alerts.ts:70-73",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✔",
+     "text": "Clone code reads no process.env; .env.example is identical to the template. Alert thresholds are data in rules/alerts.json.",
+     "evidence": "grep process.env src/earmark src/lib: none; .env.example identical",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Test DB guard and e2e build are inherited; the clone only renames the test DB (earmark_test, local Postgres), moves the port to 7600 and adds a global-setup seed.",
+     "evidence": "playwright.config.ts:4,8; .github/workflows/ci.yml:23-24",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Every clone privileged mutation (rules, seats, guest assignment, agency offboard, plan, invoices, approvals) calls audit(...) in the same transaction, and the append-only audit table is inherited.",
+     "evidence": "src/earmark/actions.ts:70,216,434,450,513,546",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "ignoreCommand matches the standard line, port 7600 is the config default, and the clone adds no cron routes of its own (only a job in the core-guarded cron).",
+     "evidence": "vercel.json:4; playwright.config.ts:4; src/app/cron-jobs.ts:11",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-footnote",
+   "name": "footnote (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "diff vs template shows no clone-owned change in this area",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "diff vs template shows no clone-owned change in this area",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "New routes and pages are guarded server-side: POST /api/answers uses requireUser or a hashed bearer key, GET /api/answers/:id uses requireUser then readableAnswer, org pages use requireOrg plus a partner-role check.",
+     "evidence": "src/app/api/answers/route.ts:23-34; src/app/api/answers/[id]/route.ts:12-16; src/app/o/[org]/answers/page.tsx:11-13",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Answer reads by id check the caller's StaffRole in the answer's org and tier coverage, returning 404 for not-yours; API keys are bound to one org and cross-org asks 404.",
+     "evidence": "src/lib/answer/caller.ts:23-31,44-47; src/app/o/[org]/answers/[id]/page.tsx:14",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✗",
+     "text": "POST /api/answers accepts unauthenticated bearer-key attempts (401 path) and fires paid LLM/embedding calls with no shared rate limiter; only a per-answer spend cap exists.",
+     "evidence": "src/app/api/answers/route.ts:23-24; src/lib/answer/caller.ts:41-46; src/lib/spend/budget.ts:7",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "diff vs template shows no clone-owned change in this area",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "diff vs template shows no clone-owned change in this area",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Service keys are stored as sha256 and looked up by hash, sent in the Authorization header, shown once at creation; no NEXT_PUBLIC secrets added.",
+     "evidence": "src/lib/answer/caller.ts:41-46; scripts/apikey-create.ts:14-17",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "N/A",
+     "text": "Clone removed the apikeys/webhooks module (D-55) and adds no inbound or outbound webhooks.",
+     "evidence": "src/app/cron-jobs.ts; src/app/org-hooks.ts:24",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "No logging of tokens or request bodies in clone code; the Anthropic error path truncates the provider reply to 300 chars and a missing key throws loudly.",
+     "evidence": "src/lib/llm/anthropic.ts:8-10,21",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✗",
+     "text": "ANTHROPIC_API_KEY and VOYAGE_API_KEY are read straight from process.env outside src/core/env.ts and are not listed in .env.example.",
+     "evidence": "src/lib/llm/anthropic.ts:8; src/lib/retrieval/voyage.ts:18; .env.example (no entries)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Inherited test-DB guard and e2e build unchanged; clone only renames the DB and port in CI (pgvector image).",
+     "evidence": ".github/workflows/ci.yml:23-29",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✗",
+     "text": "Clone-owned privileged data (FootnoteApiKey create/revoke, StaffRole role grants) is written by script/direct db calls with no audit-log entry, after the template's audited apikeys module was removed.",
+     "evidence": "scripts/apikey-create.ts:14-17; src/app/org-hooks.ts:24; src/app/export-hooks.ts:11-16",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "Port 5800 set in config, vercel.json has the template ignoreCommand, cron route is the inherited guarded /api/cron and cron-jobs.ts only dropped the webhooks job.",
+     "evidence": "package.json:10; vercel.json:4; src/app/cron-jobs.ts",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-gavel",
+   "name": "gavel (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core/auth unchanged vs template (diff -rq)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core/auth unchanged vs template (diff -rq)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "All clone pages and actions sit behind orgAction/requireUser; the added bid route calls requireUser then membership-checks the lot.",
+     "evidence": "src/app/api/lots/[id]/bids/route.ts:17; src/app/o/[org]/lots/[id]/actions.ts:15",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Clone queries scope by orgId or membership; the bid and state routes 404 for another house's lot.",
+     "evidence": "src/app/api/lots/[id]/bids/route.ts:22-24; src/auction/place-bid.ts:77-79; src/auction/lot-view.ts:80-81",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "Clone adds no unauthenticated writes; the bid route and actions require a signed-in org member.",
+     "evidence": "src/app/api/lots/[id]/bids/route.ts:17",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "N/A",
+     "text": "Clone mints no capability links; no clone code outside src/core/share.",
+     "evidence": "grep token/share in src/auction: no link minting",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "template src/core, tests/invariants",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Demo password gate uses sha256 + timingSafeEqual and fails closed on Vercel; cron route unchanged and exempted by path only, so it keeps its own CRON_SECRET guard.",
+     "evidence": "src/auction/demo-gate.ts:14-21; src/proxy.ts:6",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "N/A",
+     "text": "Billing/Stripe webhook removed (cross-org.ts drops src/modules/billing/webhook.ts); clone adds no webhooks.",
+     "evidence": "src/core/db/cross-org.ts:13 removed in clone",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Clone adds no token or body logging; bid error responses use fixed error text, not request bodies.",
+     "evidence": "grep console in src/auction, src/app/api: none",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✗",
+     "text": "DEMO_ACCESS_PASSWORD is read via process.env (not src/core/env.ts) and is absent from .env.example; the GAVEL_* vars are only commented lines, which the clone itself notes INV-14 forbids as live lines.",
+     "evidence": "src/proxy.ts:9; src/auction/demo-gate.ts:14; .env.example:26-29 (no DEMO_ACCESS_PASSWORD)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Test-DB guard and production-build e2e inherited; clone only adds workers:1 and its port to playwright.config.ts.",
+     "evidence": "playwright.config.ts:4-12",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Clone-owned privileged mutations (withdraw, void bid, corrections, payment marks) call core audit() in the same transaction.",
+     "evidence": "src/auction/withdraw.ts:50; src/auction/void-bid.ts:80; src/auction/correct.ts:8",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "Own port 6100 in config; ignoreCommand keeps the foundation diff logic with a preview-skip prefix; daily cron adds close and closingSoon jobs inside the core-guarded cron route.",
+     "evidence": "vercel.json:4; playwright.config.ts:4; src/app/cron-jobs.ts:16-19",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-housefile",
+   "name": "housefile (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "package.json:19-21 dev:test/start:test; .github/workflows/ci.yml:23 housefile_test local DB; src and tests identical to template",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed on origin/main (src/ and tests/ are byte-identical to the template; clone-owned files are only tools/*.py offline fixture scripts, fixtures/*.csv, port/db-name config).",
+     "evidence": "diff -rq src tests vs template: no differences",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✗",
+     "text": "origin/main configures port 5500, which use-case-insurance-fnol-intake owns; housefile's registered port is 5900 (the phase-1 branch has 5900, main never received it). vercel.json ignoreCommand is present and cron surface is inherited.",
+     "evidence": "package.json:8,10,19,21 (next -p 5500); playwright.config.ts:4 (?? 5500); vercel.json:4 ignoreCommand",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-ledgerleave",
+   "name": "ledgerleave (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "All clone server actions go through orgAction (leave/actions.ts) and every leave page calls requireOrg; leave-db functions are library code only reachable from those. No new route handlers.",
+     "evidence": "src/app/o/[org]/leave/actions.ts:41,54,76,87,95; src/app/o/[org]/leave/page.tsx:18; src/app/o/[org]/leave/hr/page.tsx:24-26",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Id lookups are org-scoped (requestRow/employeeRow/memberUser filter by ctx.orgId and notFound otherwise); pages query with ctx.orgId and HR-only ledger access checked.",
+     "evidence": "src/app/o/[org]/leave/actions.ts:28-38,76; src/app/o/[org]/leave/ledger/[employee]/page.tsx:17-20",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Demo-gate password compare is constant-time (sha256 digests + timingSafeEqual) and fails closed with 503 on Vercel when unset; /api/cron keeps its own CRON_SECRET guard. No secrets in query strings.",
+     "evidence": "src/app/demo-gate.ts:12-21; src/proxy.ts:6-12",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "N/A",
+     "text": "Billing and its Stripe webhook were removed; the clone adds no webhooks.",
+     "evidence": "src/core/db/cross-org.ts (billing webhook entry removed)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Clone code adds no token or body logging; the notification outbox drain is deliberately unwired, so nothing is sent.",
+     "evidence": "src/app/cron-jobs.ts:7-20",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✗",
+     "text": "The demo gate reads DEMO_ACCESS_PASSWORD (and VERCEL) straight from process.env, outside src/core/env.ts, and DEMO_ACCESS_PASSWORD is not listed in .env.example.",
+     "evidence": "src/app/demo-gate.ts:5,13-15; src/proxy.ts:7; .env.example (no DEMO_ACCESS_PASSWORD)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Test-DB guard (local-guard.ts) and e2e build setup unchanged; clone only changes port and DB names in CI. Leave tests run against local Postgres.",
+     "evidence": "src/core/db/local-guard.ts:3-7; .github/workflows/ci.yml:26-29",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Privileged clone mutations (org archive, employee-user link/unlink, time zone) write audit rows in the same transaction; leave history itself is append-only tables.",
+     "evidence": "src/leave-db/archive.ts:61; src/leave-db/people.ts:78; src/leave-db/settings.ts:17",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "Port 7300 set as config default, ignoreCommand keeps the previous-SHA root-anchored diff (plus a non-production skip), and the only cron route is the inherited guarded /api/cron.",
+     "evidence": "package.json (dev/start -p 7300); vercel.json:4; src/app/demo-gate.ts:10",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-loanbook",
+   "name": "loanbook (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "diff vs template: src/core untouched",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "diff vs template: src/core untouched",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "Clone-owned loan pages and the two route handlers (adjust POST, statement CSV) call requireOrg then requireLoan before any ledger read/write; adjust also checks same-origin. Members page adds a servicer-only notFound.",
+     "evidence": "src/app/o/[org]/loans/[loanId]/adjust/route.ts:10-12; src/app/o/[org]/loans/[loanId]/statement/csv/route.ts:8-10; src/app/o/[org]/loans/access.ts:17-22; src/app/o/[org]/settings/members/page.tsx:16",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Ledger tables carry no orgId, so scoping goes through LoanAccess(orgId): requireLoan uses findFirst by loanId+orgId (not-yours is notFound), list/aging pages derive loanIds from orgId-scoped LoanAccess, and the waive path checks the entry belongs to the loan.",
+     "evidence": "src/app/o/[org]/loans/access.ts:19; src/app/o/[org]/loans/page.tsx:60; src/app/o/[org]/loans/aging/page.tsx:20-21; src/app/o/[org]/loans/[loanId]/adjust/route.ts:21-22",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "N/A",
+     "text": "Clone adds no unauthenticated write or token-read surface; adjust and CSV require an org session.",
+     "evidence": "src/app routes beyond template: loans/* all behind requireOrg",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "N/A",
+     "text": "Clone mints no capability links; the share route is the template's.",
+     "evidence": "no clone-owned token code under src/ledger or loans/",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "diff vs template: src/core untouched",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "diff vs template: src/core untouched",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "N/A",
+     "text": "Clone adds no webhook; Stripe route is the template's.",
+     "evidence": "src/app/api/webhooks/stripe/route.ts unchanged",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "diff vs template: src/core untouched",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✔",
+     "text": "App code reads env via src/core/env.ts (access.ts uses env.DATABASE_URL); only CLI scripts read process.env.DATABASE_URL directly, and .env.example lists it.",
+     "evidence": "src/app/o/[org]/loans/access.ts:6,29; scripts/accrue.ts:15; .env.example:3",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "CI, playwright config and test-DB guard unchanged apart from port/db name and paths-ignore. Clone scripts and tests open raw pg clients on DATABASE_URL without the guard, but they run from dotenv-loaded local env.",
+     "evidence": "playwright.config.ts:4; .github/workflows/ci.yml:31-34; scripts/pay.ts:16; tests/integration/owed.test.ts:12",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Fee waivers and write-offs post reversing entries to the ledger, whose LedgerEntry/LedgerLine are DB-trigger append-only and carry a required reason. They do not also emit a template AuditEvent, so the org audit log omits them.",
+     "evidence": "prisma/migrations/20260929000000_ledger_init/migration.sql:106,110; src/app/o/[org]/loans/[loanId]/adjust/route.ts:23-25",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "Port 4700 is in package.json and playwright config, vercel.json keeps the ignoreCommand, and the clone adds no cron routes (cron-jobs.ts only wires the template's webhooks sweep).",
+     "evidence": "package.json dev/start -p 4700; vercel.json:4; src/app/cron-jobs.ts:11",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-pulseboard",
+   "name": "pulseboard (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and src/modules byte-identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and src/modules byte-identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "Only new entry points are /ingest (requireApiKey with ingest scope before reading the body) and the dashboard page (requireOrg); no new 'use server' exports.",
+     "evidence": "src/app/ingest/route.ts:11-12; src/app/o/[org]/page.tsx:82",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "All clone queries take orgId from requireOrg or the API key context and filter by it; RLS policies were generated for the new models.",
+     "evidence": "src/app/o/[org]/page.tsx:89-99; src/lib/ingest.ts:51,60; src/lib/funnels.ts:32,43; src/lib/retention.ts:23,29; prisma/migrations/20261109000001_rls_policies_pulseboard/migration.sql:1",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "/ingest is a public write limited by the core requireApiKey shared-store limiter, with a new 'ingest' scope in api-scopes (3000/min); also bounded by 1MB body and 500-row batch caps.",
+     "evidence": "src/app/api-scopes.ts:7; src/app/ingest/route.ts:11-15,23",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and src/modules byte-identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "src/core and src/modules byte-identical to template (diff -rq clean)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Clone adds no secret comparisons; API key auth is the inherited constant-time/fail-closed core. Cron stays on /api/cron with the core guard; rollups is just a job in cron-jobs.ts.",
+     "evidence": "src/app/cron-jobs.ts:15; src/app/ingest/route.ts:11",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "N/A",
+     "text": "Clone adds no webhook receivers; only the inherited outbound webhook module exists.",
+     "evidence": "src/app (no webhook routes added)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Clone code has no console/logger calls; rejected rows go to a DB dead-letter table with a reason, not to logs.",
+     "evidence": "src/lib/ingest.ts:57-62 (grep console in src/lib, src/app/ingest: none)",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✔",
+     "text": "Clone-owned src code reads no env vars; only dev scripts read BENCH_*/LOAD_URL, outside the app runtime.",
+     "evidence": "grep process.env src/lib src/app/ingest: none; scripts/load-run.ts:15",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed; clone only renames the test DB (pulseboard_test, local) and port in CI/playwright.",
+     "evidence": ".github/workflows/ci.yml:27; playwright.config.ts:4",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed; clone adds no privileged mutations (ingest writes tenant event data, rollups write derived tables).",
+     "evidence": "src/app/ingest/route.ts:10; src/lib/rollups.ts:26",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "vercel.json has the canonical ignoreCommand and a single daily cron on /api/cron; port 4500 set as default in package.json, playwright config and CI.",
+     "evidence": "vercel.json:4-10; package.json:8; playwright.config.ts:4; .github/workflows/ci.yml",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-quorum",
+   "name": "quorum (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed. Archive action additionally requires assertFresh.",
+     "evidence": "src/app/o/[org]/settings/archive/actions.ts:12",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "All clone-owned server actions (ledger, roster, meetings, violations, archive, vote, desk, results) go through orgAction with a permission, or null (member-side) with an in-body OwnerLink check. No new route handlers or public pages were added.",
+     "evidence": "src/app/o/[org]/ledger/actions.ts:11; src/app/o/[org]/meetings/[id]/vote/actions.ts:11; src/app/o/[org]/settings/archive/actions.ts:10",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Clone-owned domain queries filter by orgId or by a parent relation (unit.orgId, meeting.orgId); ids are resolved with findFirst and orgId. Org tables are also covered by RLS and the export-hook coverage check.",
+     "evidence": "src/violations/violations.ts:45,68; src/meetings/admin.ts:34,88-90; src/ledger/ledger.ts:45",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed. The clone adds no unauthenticated write; ballot casting is session-bound.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "✔",
+     "text": "The clone mints no capability links. Ballot receipts are verified in-session. No new token or share surface outside src/core/share.",
+     "evidence": "src/app/o/[org]/meetings/[id]/results/actions.ts:9",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed.",
+     "evidence": "next.config.ts identical to template",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed. The clone adds no secret compares or secret env vars.",
+     "evidence": "",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "N/A",
+     "text": "N/A: billing and the Stripe webhook were removed, and the clone adds no webhooks. Removing the webhook also dropped its cross-org entry and inv-12 test.",
+     "evidence": "src/core/db/cross-org.ts",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "No console or log calls in clone-owned src. Notices are queued to the outbox and the drain is deliberately disabled (D-44), so nothing is sent and nothing logged.",
+     "evidence": "src/app/cron-jobs.ts:7-9",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✔",
+     "text": "Clone-owned src reads no process.env. The only env reads outside core are the template's db-setup script (LOCAL_PG_URL_BASE, PGUSER, PGPASSWORD, dev-only). .env.example changed by one comment line only.",
+     "evidence": "scripts/db-setup.ts:16; .env.example:2",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Test DB guard and e2e production-build setup are untouched. The clone only changed the playwright default port to 6200.",
+     "evidence": "playwright.config.ts:4",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Clone privileged mutations audit via core audit(): dues run, payments and credits, roster import, meeting create/close, proxies, violations, archive, ballot cast. The AuditEvent trigger is inherited, and OrgArchive and the ballot tables get their own append-only triggers.",
+     "evidence": "src/ledger/ledger.ts:51,87; src/violations/violations.ts:59,98; src/meetings/casting.ts:50; prisma/migrations/20261027100000_quorum_owner_link_archive/migration.sql:54",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "vercel.json and the cron route are inherited. cron-jobs.ts only drops the outbox drain (a reduction) and adds no cron route. Port 6200 is set in config.",
+     "evidence": "src/app/cron-jobs.ts:7; playwright.config.ts:4",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-tradepost",
+   "name": "tradepost (clone)",
+   "cells": {
+    "K1": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed (sessions, sign-in links, hashed tokens).",
+     "evidence": "src/core/auth identical to template",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K2": {
+     "s": "✔",
+     "text": "Clone adds requirePlatformAdmin, which requires enrolled TOTP plus a fresh mfaAt before any admin dispute or review action; owner/admin MFA in core is untouched.",
+     "evidence": "src/lib/admin.ts:10-11",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K3": {
+     "s": "✔",
+     "text": "Every clone server action goes through userAction/orgAction/manageAction, and every clone page calls requireUser/requireOrg/requirePlatformAdmin. The F-04 guards.ts patch turns a missing perm into notFound rather than throwing, which is stricter, not looser. The public /search page is intentionally open and reads only a projected listing select.",
+     "evidence": "src/app/jobs/actions.ts:15; src/app/o/[org]/listings/actions.ts:49; src/lib/roles.ts:17-21; src/core/authz/guards.ts:40; src/lib/admin.ts:10; src/app/search/page.tsx",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K4": {
+     "s": "✔",
+     "text": "Provider rows go through providerDb and client rows through clientDb, which inject orgId/clientId on every query, and a lint test fails the build on any db.listing/db.job use outside tenancy.ts. Saved searches are scoped by { id, userId }. Cross-provider reads are limited to platform-admin or cron paths.",
+     "evidence": "src/lib/tenancy.ts:31-60,140-146; tests/unit/tenancy-lint.test.ts:13; src/lib/saved-searches.ts:66",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K5": {
+     "s": "✔",
+     "text": "Clone adds no unauthenticated writes. /search is a public read with no write path, and geocoding is only reachable from the authenticated manageAction listing form. Sign-in, demo and token routes are the template's.",
+     "evidence": "src/app/search/page.tsx; src/app/o/[org]/listings/actions.ts:39",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K6": {
+     "s": "N/A",
+     "text": "Clone mints no capability links; all token surfaces are in src/core/share and the template modules.",
+     "evidence": "grep: no token minting in src/lib or clone routes",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K7": {
+     "s": "✔",
+     "text": "next.config.ts is byte-identical to the template, so global headers are unchanged. proxy.ts only adds a Basic-auth gate and does not touch headers.",
+     "evidence": "next.config.ts; src/proxy.ts",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K8": {
+     "s": "✔",
+     "text": "The demo gate compares SHA-256 digests with timingSafeEqual, fails closed with 503 on Vercel when the password is unset, takes the credential from the Authorization header (not the query string), and exempts only /api/cron and /api/webhooks/stripe, which carry their own credentials. The cron route still uses core isAuthorizedCron.",
+     "evidence": "src/lib/demo-gate.ts:14-24; src/app/api/cron/route.ts:2",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K9": {
+     "s": "✔",
+     "text": "Inherited from foundation v1.6.2, no clone-owned surface changed (stripe webhook route is identical to the template; clone adds no webhooks).",
+     "evidence": "src/app/api/webhooks/stripe/route.ts identical",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K10": {
+     "s": "✔",
+     "text": "Clone logging is limited to notify.failed, which logs the subject and error only and never the address or number. Contact audit records no phone number.",
+     "evidence": "src/lib/notify.ts:12; src/app/o/[org]/settings/contact/actions.ts:18",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K11": {
+     "s": "✗",
+     "text": "The clone reads DEMO_ACCESS_PASSWORD and VERCEL straight from process.env in proxy.ts/demo-gate.ts, bypassing the schema-validated src/core/env.ts. DEMO_ACCESS_PASSWORD is also missing from .env.example (only DEMO_MODE is listed there).",
+     "evidence": "src/proxy.ts:7; src/lib/demo-gate.ts:16-18; .env.example:12",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K12": {
+     "s": "✔",
+     "text": "Core db local-guard and the production-build e2e config are unchanged apart from blanking DEMO_ACCESS_PASSWORD for the test server. Clone adds a geocode stub for unit tests, not a remote DB path.",
+     "evidence": "playwright.config.ts:14-16; vitest.config.ts:8; src/core/db/index.ts:6",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K13": {
+     "s": "✔",
+     "text": "Every privileged clone mutation writes an audit row: dispute resolution and review moderation inside the same transaction, admin thread reads, job moves, listing changes, contact changes and cron auto-confirm.",
+     "evidence": "src/lib/jobs.ts:151; src/lib/tenancy.ts:222; src/lib/threads.ts:45; src/lib/jobs.ts:124; src/app/o/[org]/listings/actions.ts:42",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    },
+    "K14": {
+     "s": "✔",
+     "text": "Port 4200 is set in package.json and vercel.json has the template ignoreCommand with auto-deploy disabled. The only cron route is /api/cron, guarded by core isAuthorizedCron; clone jobs run inside it via cron-jobs.ts.",
+     "evidence": "package.json:8,10,19,21; vercel.json:3-4; src/app/api/cron/route.ts:2; src/app/cron-jobs.ts",
+     "secs": [],
+     "basis": "clone sweep 2026-11-13 (agent, origin/main)"
+    }
+   }
+  },
+  {
+   "id": "clone-boxloop",
+   "name": "boxloop (clone)",
+   "cells": {},
+   "retired": "paused, not scored (on hold since 2026-10-19, still on v1.2.1)"
   }
  ]
 }

@@ -131,6 +131,8 @@ describe('rls:policies module guard (F-09)', () => {
       const guarded = policySql([t]).includes(`to_regclass('"${t.table}"')`);
       expect([t.table, guarded]).toEqual([t.table, Boolean(t.module)]);
     }
-    expect([...new Set(tables.map((t) => t.module).filter(Boolean))].sort()).toEqual(Object.keys(MODULES).sort());
+    // A clone that removed a module has fewer module tables: assert only that every present module is known.
+    const present = [...new Set(tables.map((t) => t.module).filter(Boolean))];
+    expect(present.filter((m) => !(m in MODULES))).toEqual([]);
   });
 });

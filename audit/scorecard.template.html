@@ -21,7 +21,7 @@ tr.f td{background:var(--okbg)} tr.f td.n{background:var(--okbg)}
 td button{all:unset;cursor:pointer;display:block;width:100%;height:100%;padding:9px 0;font:600 15px "IBM Plex Mono",monospace;box-sizing:border-box}
 td button:focus-visible{outline:2px solid var(--sel);outline-offset:-2px}
 td button[aria-pressed=true]{background:var(--sel);color:var(--bg)!important}
-.s-ok{color:var(--ok)} .s-bad{color:var(--bad);background:var(--badbg)} .s-na{color:var(--na);font-weight:400} .s-q{color:var(--q);background:var(--qbg)} .s-acc{color:var(--q)} tr.ret td{color:var(--mute);font-style:italic;padding:8px 12px;text-align:left}
+.s-ok{color:var(--ok)} .s-bad{color:var(--bad);background:var(--badbg)} .s-na{color:var(--na);font-weight:400} .s-q{color:var(--q);background:var(--qbg)} .s-pr{color:var(--ok);background:var(--badbg)} .detail a,.n a{color:var(--ok)} .gap{border-left:3px solid var(--bad);padding-left:10px} .s-acc{color:var(--q)} tr.ret td{color:var(--mute);font-style:italic;padding:8px 12px;text-align:left}
 .detail{margin-top:16px;background:var(--surf);border:1px solid var(--line);border-radius:6px;padding:14px 16px;min-height:96px}
 .detail h2{font-size:15px;margin:0 0 6px}
 .detail p{margin:4px 0;max-width:75ch}
@@ -32,30 +32,30 @@ td button[aria-pressed=true]{background:var(--sel);color:var(--bg)!important}
 <main>
 <h1>Foundation Scorecard</h1>
 <p class="sub">Every code project against the 14 key pieces of the saas foundation (K1–K14). Select a cell for the reason, the evidence and the backlog item that fixes it.</p>
-<div class="scope"><b>Scope.</b> The foundation row was verified 2026-11-09 (286 tests pass, 21 skipped, v1.6.1). <b>Every other row was re-scored against current code on 2026-11-10</b> by one Sonnet agent per project (read-only, no builds or tests run); each cell says how it was checked. Exceptions: K4 on the rows the Opus sweep of 2026-09-26 covered keeps that sweep's result, and the dead design bridge is retired and not scored. Some passes were spot checks, flagged in the cell text (storage K4 and K6, rental K2/K5/K9/K10). <b>Clone rows</b> (2026-11-13, one Sonnet agent each, read-only, against <code>origin/main</code>) score only clone-owned code; inherited code is covered by the foundation row. boxloop is paused and not scored.</div>
-<div class="legend"><span><b class="s-ok mono">✔</b> compliant</span><span><b class="s-bad mono">✗</b> not compliant</span><span><b class="s-na mono">–</b> N/A</span><span><b class="s-acc mono">≈</b> accepted by a recorded decision (not counted as ✔)</span><span><b class="s-q mono">?</b> not verified</span></div>
+<div class="scope"><b>Scope.</b> Re-run <b>2026-11-13</b>. <b>Foundation</b> (v1.6.2) re-verified: vitest 287 pass + 21 skipped with RLS off, 307 + 1 with RLS enforced; e2e 14 pass on a production build. <b>Project rows</b> were re-scored against each repo's current <code>main</code> by one agent per repo, which then fixed what it could on a <code>scorecard-fixes-2026-11-13</code> branch and opened a PR. Nothing was merged or deployed. A cell's mark is the state of <code>main</code>; <b>◐</b> means an open PR closes it. Select a cell for the evidence, the PR and, if still open, why. <b>Clone rows</b> (2026-11-13, one agent each, read-only, against <code>origin/main</code>) score only clone-owned code; inherited code is covered by the foundation row. boxloop is paused and not scored. The dead design bridge row is removed.</div>
+<div class="legend"><span><b class="s-ok mono">✔</b> compliant</span><span><b class="s-bad mono">✗</b> not compliant</span><span><b class="s-na mono">–</b> N/A</span><span><b class="s-acc mono">≈</b> accepted by a recorded decision (not counted as ✔)</span><span><b class="s-q mono">?</b> not verified</span><span><b class="s-pr mono">◐</b> open on main, fixed on an open PR (not merged)</span></div>
 <p class="ev" id="rs">Each project row has a re-check button. A request is queued here and run from the Claude Code session in the foundation repo; it re-scores that project only.</p>
 <div class="wrap"><table id="m"></table></div>
 <div class="detail" id="d" aria-live="polite"></div>
 </main>
 <script>
 const D=__DATA__;
-const G={"✔":["✔","s-ok"],"✗":["✗","s-bad"],"N/A":["–","s-na"],"?":["?","s-q"],"≈":["≈","s-acc"]};
+const G={"✔":["✔","s-ok"],"✗":["✗","s-bad"],"N/A":["–","s-na"],"?":["?","s-q"],"≈":["≈","s-acc"]};const open=s=>s==="✗"||s==="?";
 const m=document.getElementById('m'),d=document.getElementById('d');let sel=null;
 let h='<thead><tr><th class="n">Project</th>';
 for(const k in D.keys)h+=`<th>${k}<small>${D.keys[k]}</small></th>`;
-h+='<th>✔</th></tr></thead><tbody>';
-D.rows.forEach((r,i)=>{if(r.retired){h+=`<tr class="ret"><td class="n">${r.name}<div class="t">${r.id}</div></td><td colspan="15">${r.retired}</td></tr>`;return}const n=Object.values(r.cells).filter(c=>c.s==="✔").length;
-h+=`<tr class="${i?'':'f'}"><td class="n">${r.name}<div class="t">${i?r.id:D.foundationVersion}</div>${i?`<button class="rq" type="button" data-id="${r.id}" hidden>Re-check</button><div class="ev st" data-st="${r.id}"></div>`:''}</td>`;
-for(const k in D.keys){const c=r.cells[k],g=G[c.s];h+=`<td><button class="${g[1]}" data-r="${i}" data-k="${k}" aria-pressed="false" aria-label="${r.name} ${k}: ${c.s}">${g[0]}</button></td>`}
-h+=`<td class="mono">${n}/14</td></tr>`});
+h+='<th>✔<small>main</small></th></tr></thead><tbody>';
+D.rows.forEach((r,i)=>{if(r.retired){h+=`<tr class="ret"><td class="n">${r.name}<div class="t">${r.id}</div></td><td colspan="15">${r.retired}</td></tr>`;return}const n=Object.values(r.cells).filter(c=>c.s==="✔").length,np=Object.values(r.cells).filter(c=>(c.fix||c).s==="✔").length;
+h+=`<tr class="${i?'':'f'}"><td class="n">${r.name}<div class="t">${i?r.id:D.foundationVersion}</div>${r.pr?r.pr.split(' ').map(u=>`<a class="t" href="${u}" target="_blank" rel="noopener">PR ${u.split('/').slice(-3,-2)[0].replace(/^use-case-/,'')} #${u.split('/').pop()}</a>`).join('<br>'):''}${i?`<button class="rq" type="button" data-id="${r.id}" hidden>Re-check</button><div class="ev st" data-st="${r.id}"></div>`:''}</td>`;
+for(const k in D.keys){const c=r.cells[k],g=(c.fix&&open(c.s)&&!open(c.fix.s))?["◐","s-pr"]:G[c.s];h+=`<td><button class="${g[1]}" data-r="${i}" data-k="${k}" aria-pressed="false" aria-label="${r.name} ${k}: ${c.s}">${g[0]}</button></td>`}
+h+=`<td class="mono">${n}/14${np>n?`<div class="t">${np}/14 w/ PR</div>`:""}</td></tr>`});
 m.innerHTML=h+'</tbody>';
 function show(b){if(sel)sel.setAttribute('aria-pressed','false');sel=b;b.setAttribute('aria-pressed','true');
 const r=D.rows[b.dataset.r],c=r.cells[b.dataset.k],e=x=>x.replace(/[&<>]/g,s=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[s]));
 d.innerHTML=`<h2>${e(r.name)} · ${b.dataset.k} ${D.keys[b.dataset.k]} <span class="tag">${c.s}</span></h2><p>${e(c.text)}</p>`+
-(c.evidence?`<p class="ev">${e(c.evidence)}</p>`:'')+`<p><span class="tag">${c.basis}</span>${c.secs.map(s=>`<span class="tag">${s}</span>`).join('')}</p>`}
-m.addEventListener('click',e=>{const b=e.target.closest('button');if(b)show(b)});
-show(m.querySelector('button[data-r="4"][data-k="K6"]'));
+(c.evidence?`<p class="ev">${e(c.evidence)}</p>`:'')+(c.fix?`<p><span class="tag">on PR: ${c.fix.s}</span><a href="${c.fix.pr.split(' ')[0]}" target="_blank" rel="noopener">${e(c.fix.pr)}</a>${c.fix.change?` · ${e(c.fix.change)}`:''}</p>`:'')+(c.gap&&open((c.fix||c).s)?`<p class="gap"><b>Still open:</b> ${e(c.gap)}</p>`:'')+`<p><span class="tag">${c.basis}</span>${(c.secs||[]).map(s=>`<span class="tag">${s}</span>`).join('')}</p>`}
+m.addEventListener('click',e=>{const b=e.target.closest('button[data-r]');if(b)show(b)});
+show(m.querySelector('button[data-r="1"][data-k="K5"]'));
 (async()=>{const db=await claude.use("db");if(!db)return;
 const f=t=>new Date(t).toLocaleDateString();
 document.querySelectorAll('.rq').forEach(b=>{b.hidden=false;

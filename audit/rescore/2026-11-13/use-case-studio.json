@@ -1,0 +1,122 @@
+{
+ "row": "use-case-studio",
+ "repo": "shanelabountyai/use-case-studio",
+ "main_head": "8cb6285",
+ "branch_head": "1cd9396",
+ "pr_url": "https://github.com/shanelabountyai/use-case-studio/pull/3",
+ "checks": "tsc --noEmit ok; vitest 319 pass 0 fail 4 skipped (BK_LIVE); next build ok (Google Fonts mocked, fonts.googleapis.com blocked); next start smoke: headers, boot env check, worker 401 ok; migrations 0000-0004 + limiter SQL verified on local PG16; no lint script in repo; integration/e2e not run locally (neon-http driver needs a Neon DB) - CI on the PR runs them",
+ "cells": {
+  "K1": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Auth.js DB sessions can be revoked on the server, but the Drizzle adapter stores sessionToken in plain text as the primary key, and the Resend magic link is spent by Auth.js's GET callback. Checked by reading the code; not changed.",
+   "evidence": "src/db/schema.ts:27-28; src/auth.ts:9-26",
+   "change": null,
+   "gap_reason": "Needs owner decision: closing it means a custom adapter or session layer (hashed tokens, magic link spent by POST), which is new auth work the brief excludes."
+  },
+  "K2": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No admin or owner role exists. Users are single practitioners, and the intake owner is an email set in env, not a privileged role.",
+   "evidence": "src/db/schema.ts:5-11; src/app/api/intake/route.ts:76-84",
+   "change": null,
+   "gap_reason": null
+  },
+  "K3": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Swept all 14 route.ts files: every private handler awaits auth(); /studio is gated by its page (auth()) and by middleware; the only 'use server' code is the sign-in/out forms in page.tsx. The public exceptions are intake (keyed and rate-limited), /s/[token] (capability link), the worker (cron bearer) and the Auth.js route.",
+   "evidence": "src/app/api/**/route.ts; src/app/studio/page.tsx:6; src/middleware.ts:11-26; src/app/page.tsx:16-27",
+   "change": null,
+   "gap_reason": null
+  },
+  "K4": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Spot-checked every by-id handler: use-cases are scoped by (id,userId), kickoff jobs go through getOwnedJob or approveJob (id+userId), share links are joined to useCases.userId, and loadCasePayload only runs with the caseId of an owned job.",
+   "evidence": "src/lib/kickoff/worker.ts:162-182; src/app/api/share-links/[token]/route.ts:15-23; src/app/api/share-links/route.ts:18-41",
+   "change": null,
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Branch: intake (20/min/IP), /s/[token] reads (60/min/IP) and Auth.js sign-in POSTs (10 per 15 min/IP) now count fixed windows in a Postgres rate_limit table with one atomic upsert, replacing per-instance Maps; the worker cron clears old windows. Tested migrations and the generated SQL on local PG16, plus unit tests; integration test added for CI.",
+   "evidence": "src/lib/rate-limit.ts:1-49; drizzle/0004_rate_limit.sql; src/middleware.ts:16; src/app/api/intake/route.ts:39; src/app/api/auth/[...nextauth]/route.ts:11-13",
+   "change": "1cd9396 shared DB-backed limiter + migration 0004; intake/share/sign-in wired; cron sweep",
+   "gap_reason": null
+  },
+  "K6": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Share links can be revoked, have an allowlisted projection (toPublicBrief) and send no-referrer/noindex/no-store, but the token is stored in plain text as the primary key and there is no expiry column. Checked by reading the code; not changed.",
+   "evidence": "src/db/schema.ts:98-103; src/lib/sharing.ts:32-45; next.config.mjs (/s/:token* rule)",
+   "change": null,
+   "gap_reason": "Needs owner decision: hashing makes existing link URLs impossible to recover, and ShareManager displays and copies them (ShareManager.tsx:63-96); expiry would end links that exist today. Both change what users see."
+  },
+  "K7": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Branch: every route gets Referrer-Policy strict-origin-when-cross-origin, nosniff, X-Frame-Options DENY + CSP frame-ancestors 'none', and HSTS; poweredByHeader is off; the /s/* rule overrides with no-referrer. Unit test, plus curl on next start.",
+   "evidence": "next.config.mjs:3-9,16,24; src/lib/security-headers.test.ts",
+   "change": "e622c2d global headers() block",
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Branch: intake returns 503 when INTAKE_KEY is unset and compares the key with timingSafeEqual; the worker cron uses constant-time, fail-closed isAuthorizedCron. No NEXT_PUBLIC_ vars; no tracked secrets (git ls-files shows only .env.example). The intake key is sent in the form body, not the query string.",
+   "evidence": "src/lib/secrets.ts:1-27; src/app/api/intake/route.ts:65-71; src/app/api/kickoff/worker/route.ts:20",
+   "change": "90cab95 fail-closed constant-time intake key + cron compare",
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No inbound webhooks; the only external caller is the Vercel cron hitting the worker.",
+   "evidence": "src/app/api (14 route files)",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Branch: parseEnv refuses to boot when VERCEL_ENV=production and AUTH_RESEND_KEY is unset; in production, notify logs which setting is missing without the recipient or body. No tokens or bodies are logged anywhere: the only console calls are error.tsx and the planner/critic stage errors.",
+   "evidence": "src/lib/env.ts:57-59; src/lib/notify.ts:65-70; src/lib/kickoff/worker.ts:94,128",
+   "change": "b703e55 production boot check + no-longer-silent notify",
+   "gap_reason": null
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Branch: a zod schema (src/lib/env.ts) is checked once at server boot by instrumentation.ts (confirmed: a boot without DATABASE_URL fails naming only the key); .env.example lists every key, and env.test.ts checks that against every process.env read in src, e2e, integration and configs.",
+   "evidence": "src/lib/env.ts:12-39; src/instrumentation.ts:5-10; .env.example; src/lib/env.test.ts",
+   "change": "5b6951d env schema + instrumentation + full .env.example (ALLOW_CLOUD_DB added in 3be2447)",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Branch: integration/setup-env.ts and playwright.config.ts now call assertLocalOrAllowed, which refuses Neon/RDS/Supabase URLs unless ALLOW_CLOUD_DB=1 (CI sets it for the disposable branch); confirmed it stops both runners. e2e runs on a production build (build+start). Tests still run on a Neon branch, not local Postgres.",
+   "evidence": "src/db/local-guard.ts:7-13; integration/setup-env.ts:11; playwright.config.ts:3,7; .github/workflows/ci.yml (ALLOW_CLOUD_DB on integration/e2e steps); src/db/index.ts:1-6",
+   "change": "3be2447 cloud-DB guard for integration/e2e (partial)",
+   "gap_reason": "The app uses the neon-http driver, which cannot connect to plain local Postgres. Moving tests to local PG needs a driver decision (e.g. node-postgres in tests, or a local Neon HTTP proxy) — owner/design work."
+  },
+  "K13": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No privileged role or privileged-change surface; only user-level CRUD and plan approvals.",
+   "evidence": "src/db/schema.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K14": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Branch: ignoreCommand matches the foundation exactly; dev/start/Playwright now use port 5700 (main used the default 3000); the cron route is constant-time and fails closed (K8 commit). Note: the 2026-11-10 cell said port 5700 was already set at HEAD 2ba93c6, but that commit is not on GitHub and main had no port.",
+   "evidence": "vercel.json:5; package.json:6,8; playwright.config.ts:23,30; src/app/api/kickoff/worker/route.ts:20",
+   "change": "463b41d port 5700 (+ 90cab95 constant-time cron)",
+   "gap_reason": null
+  }
+ }
+}

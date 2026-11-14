@@ -1,0 +1,122 @@
+{
+ "row": "use-case-trio",
+ "repo": "shanelabountyai/use-case-support-ticket-deflection, shanelabountyai/use-case-insurance-fnol-intake, shanelabountyai/use-case-grant-proposal-assembly",
+ "main_head": "use-case-support-ticket-deflection c6ed112, use-case-insurance-fnol-intake 4ce78ca, use-case-grant-proposal-assembly 8e3801c",
+ "branch_head": "use-case-support-ticket-deflection d343341, use-case-insurance-fnol-intake bfc6d3e, use-case-grant-proposal-assembly 0d92b73",
+ "pr_url": "https://github.com/shanelabountyai/use-case-support-ticket-deflection/pull/1 https://github.com/shanelabountyai/use-case-insurance-fnol-intake/pull/1 https://github.com/shanelabountyai/use-case-grant-proposal-assembly/pull/1",
+ "checks": "Node 24, run serially per repo on the branch. use-case-support-ticket-deflection: vitest 74 pass 0 fail; use-case-insurance-fnol-intake: vitest 19 pass 0 fail; use-case-grant-proposal-assembly: vitest 19 pass 0 fail. All three: tsc typecheck ok; next build ok; next start smoke ok (5 security headers on /, 500 + 'Invalid environment: DATABASE_URL' without env, 200 with it); vitest/playwright refuse a neon.tech URL; playwright --list loads (0 specs, no e2e/ dir, so e2e not run). Lint FAILS on main and branch identically in all three: no eslint.config.* exists (pre-existing, not fixed). Env limit: prisma generate cannot fetch the query engine (binaries.prisma.sh blocked), so npm ci ran with --ignore-scripts; no test needs the generated client. Tests use DATABASE_URL=postgresql://postgres:postgres@localhost:5432/<repo>_test exported (no .env.test created; no DB created since no test connects).",
+ "cells": {
+  "K1": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No auth wiring in any repo: next-auth is only a declared dependency; apps/web/app holds layout.tsx, page.tsx, globals.css (branch adds instrumentation.ts env check only). Full sweep of all three repos' tracked files at main HEAD (git ls-files + git grep), unchanged since 2026-11-10.",
+   "evidence": "use-case-*/apps/web/package.json:20; use-case-*/apps/web/app/page.tsx:1-12",
+   "change": null,
+   "gap_reason": null
+  },
+  "K2": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No roles, users or guards in any repo. Full sweep of all three repos' tracked files at main HEAD (git ls-files + git grep), unchanged since 2026-11-10.",
+   "evidence": "use-case-*/apps/web/app; use-case-*/packages/db/prisma/schema.prisma:11-19",
+   "change": null,
+   "gap_reason": null
+  },
+  "K3": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No server actions, route handlers or private pages; only a static placeholder page ('Scaffold only'). Full sweep of all three repos' tracked files at main HEAD (git ls-files + git grep), unchanged since 2026-11-10.",
+   "evidence": "use-case-*/apps/web/app/page.tsx:6-8",
+   "change": null,
+   "gap_reason": null
+  },
+  "K4": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "schema.prisma has zero models in all three; ticket-deflection's packages/core (redact/draft/agreement/corpus) does no DB access. Full sweep of all three repos' tracked files at main HEAD (git ls-files + git grep), unchanged since 2026-11-10.",
+   "evidence": "use-case-*/packages/db/prisma/schema.prisma:11-19; use-case-support-ticket-deflection/packages/core/draft.ts:140-152",
+   "change": null,
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No unauthenticated writes or token reads exist. Full sweep of all three repos' tracked files at main HEAD (git ls-files + git grep), unchanged since 2026-11-10.",
+   "evidence": "use-case-*/apps/web/app",
+   "change": null,
+   "gap_reason": null
+  },
+  "K6": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No capability/token links built. Full sweep of all three repos' tracked files at main HEAD (git ls-files + git grep), unchanged since 2026-11-10.",
+   "evidence": "use-case-*/apps/web/app",
+   "change": null,
+   "gap_reason": null
+  },
+  "K7": {
+   "s_main": "N/A",
+   "s_branch": "✔",
+   "text": "Main: next.config.mjs had only transpilePackages (scored N/A: no server surface beyond a static page). Branch: headers() on /:path* with Referrer-Policy, nosniff, frame-ancestors 'none', X-Frame-Options DENY, HSTS, poweredByHeader false, in all three; verified by unit test and by curl against next start on 5400/5500/5600 (all 5 headers present).",
+   "evidence": "use-case-*/apps/web/next.config.mjs:3-17 (branch); use-case-*/tests/security-headers.test.ts",
+   "change": "use-case-support-ticket-deflection 51713ad, use-case-insurance-fnol-intake 2b5de93, use-case-grant-proposal-assembly f25c5c9: global security headers + test",
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "?",
+   "s_branch": "?",
+   "text": "Repo content complies in all three: no secret compares, no NEXT_PUBLIC_/VITE_ vars, only .env.example tracked, and a full-history grep (git log --all -p) found no Anthropic keys, Neon passwords or Zendesk tokens. The 2026-11-10 ✗ (SEC-01) is a populated untracked .env.local on the owner's laptop in support-ticket-deflection; it is not in this clone, so it can be neither confirmed fixed nor re-observed. ticket-deflection's draft-demo fails closed when ANTHROPIC_API_KEY is unset.",
+   "evidence": "use-case-support-ticket-deflection/scripts/draft-demo.mts:30-46; use-case-*/.gitignore:2-3,23-25; git ls-files | grep env -> .env.example only (all three)",
+   "change": null,
+   "gap_reason": "Owner action on the laptop: clear or rotate the populated DATABASE_URL/DIRECT_URL/ANTHROPIC_API_KEY in use-case-support-ticket-deflection/.env.local (or record why early provisioning is deliberate), then re-check. Agents may not touch .env files."
+  },
+  "K9": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No webhooks built. Full sweep of all three repos' tracked files at main HEAD (git ls-files + git grep), unchanged since 2026-11-10.",
+   "evidence": "use-case-*/apps/web/app",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No server code that logs; only the seed stub and ticket-deflection's offline CLI scripts use console, and no provider/message transport exists. Full sweep of all three repos' tracked files at main HEAD (git ls-files + git grep), unchanged since 2026-11-10.",
+   "evidence": "use-case-*/packages/db/prisma/seed.mts:3; use-case-support-ticket-deflection/scripts/agreement.mts:62-71",
+   "change": null,
+   "gap_reason": null
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Main: no env schema anywhere; .env.example names only. Branch (all three): apps/web/lib/env.ts zod schema of every key read (NODE_ENV, DATABASE_URL, DIRECT_URL, ANTHROPIC_API_KEY; ticket-deflection also ZENDESK_SUBDOMAIN/ZENDESK_API_TOKEN), parsed at server start by apps/web/instrumentation.ts; .env.example gains NODE_ENV and must equal the schema keys (test). Verified: next start without DATABASE_URL logs 'Invalid environment: DATABASE_URL' and serves 500; with it 200. Tooling-only vars (CI, E2E_DEV in playwright.config.ts) are not listed, matching the foundation.",
+   "evidence": "use-case-*/apps/web/lib/env.ts; use-case-*/apps/web/instrumentation.ts:3-6; use-case-*/.env.example:3-7; use-case-*/tests/env.test.ts",
+   "change": "use-case-support-ticket-deflection 0d9a695, use-case-insurance-fnol-intake daa37bb, use-case-grant-proposal-assembly 820254a: env schema at boot + .env.example parity test (adds zod to apps/web)",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Main: re-scored down from the 11-10 ✔: only a test assertion (tests/test-database.test.ts) checked the URL; no code-level guard, so other tests and the e2e build would run on whatever DATABASE_URL was loaded. e2e on a production build and .env.test-first ordering were already in place. Branch: packages/db/local-guard.ts refuses any non-localhost host or a database other than the repo's own *_test, called from vitest.config.ts, playwright.config.ts and packages/db/index.ts (NODE_ENV=test). Verified: npm test and playwright --list with a neon.tech URL refuse before running.",
+   "evidence": "use-case-*/packages/db/local-guard.ts; use-case-*/vitest.config.ts:3-7; use-case-*/playwright.config.ts:2-6; use-case-*/packages/db/index.ts:2-5; use-case-*/package.json:17-23 (e2e:server = build:test && start:test)",
+   "change": "use-case-support-ticket-deflection 20d8677, use-case-insurance-fnol-intake e68a3ff, use-case-grant-proposal-assembly b68339c: code-level local test-DB guard + test",
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No models or privileged writes; no audit table exists to harden. Full sweep of all three repos' tracked files at main HEAD (git ls-files + git grep), unchanged since 2026-11-10.",
+   "evidence": "use-case-*/packages/db/prisma/schema.prisma:11-19",
+   "change": null,
+   "gap_reason": null
+  },
+  "K14": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Main: ports already distinct and own (grant 5400, fnol 5500, ticket 5600 in apps/web dev/start and Playwright; CLONES.md records 5500 as fnol's), but no vercel.json/ignoreCommand. Branch: apps/web/vercel.json (apps/web is the Vercel root, it holds vercel-build) with the foundation's ignoreCommand verbatim, no crons (no cron routes exist); tests/deploy-hygiene.test.ts pins ignoreCommand, no crons and the port. ignoreCommand exercised in a scratch clone: md-only exit 0, code change exit 1, unknown sha exit 1. Ports kept as they were.",
+   "evidence": "use-case-*/apps/web/vercel.json; use-case-*/apps/web/package.json:6,9; use-case-*/playwright.config.ts:10,16 (branch line numbers); use-case-*/tests/deploy-hygiene.test.ts; saas-foundation/CLONES.md:14",
+   "change": "use-case-support-ticket-deflection d343341, use-case-insurance-fnol-intake bfc6d3e, use-case-grant-proposal-assembly 0d92b73: vercel.json ignoreCommand + deploy-hygiene test",
+   "gap_reason": null
+  }
+ }
+}

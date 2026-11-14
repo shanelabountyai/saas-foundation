@@ -132,7 +132,7 @@ describe('rls:policies module guard (F-09)', () => {
       expect([t.table, guarded]).toEqual([t.table, Boolean(t.module)]);
     }
     // A clone that removed a module has fewer module tables: assert only that every present module is known.
-    const present = [...new Set(tables.map((t) => t.module).filter(Boolean))];
+    const present = [...new Set(tables.map((t) => t.module).filter((m): m is NonNullable<typeof m> => Boolean(m)))];
     expect(present.filter((m) => !(m in MODULES))).toEqual([]);
   });
 });

@@ -1,17 +1,14 @@
 # NEXT
 
-## ▶ Next session: scorecard gap plan **Step 1** (`audit/GAP-PLAN-2026-11-09.md`). Model: Sonnet.
-**Step 0 DONE (2026-11-13):** re-score published to https://claude.ai/artifact/TognMvisj8T9GNQGtE9MbJ as version 11 (asOf 2026-11-10; open cells 92 -> 70).
-Source: `audit/scorecard.template.html` with `__DATA__` replaced by `audit/scorecard.json`. To republish, read the live source in full first (the tool refuses otherwise), then resend.
-**What moved (old -> new):** storage 8 cells to ✔ (K1 K2 K4 K5 K6 K7 K9 K14; SEC-01/02/07 all fixed; K4 caveat: `confirmCorrection` and
-`ledger-exceptions` still do unscoped `lease.findUnique` echo reads, untraced; K6 borderline, no `no-store`); event toolkit 6 cells (K1 K6 K8 K10 K13 K14);
-bookable 5 (K4 K5 K8 K14 up, K13 ?->✗); alongside K9 K14; countertop K14; claude-dashboard K10; trio K12; groundwork K5 up, **K14 down** (new cron `!==`).
-No change: clinic, rental, reservations, showcall, talk4me, use-case-studio (reservations SEC-01..08 all still open).
-**Re-cut Steps 2 to 4:** the plan's Step 2 order is stale. Event toolkit (the one public app) is down to K2, K5, K11, K12 (4 gaps); storage is down to K11, K12,
-and the memory note "storage stays private until SEC-01/02" is now met (verify K4 echo reads first). Biggest open rows now: reservations (10 gaps, deployed,
-SMS webhook has no timestamp window), use-case-studio (9, INTAKE_KEY fails open), showcall (8), countertop (8).
-Then **Step 1** (owner-decided 2026-11-09): retire the design bridge row, add the "accepted" state (needs a decision-log row in the project first), add clone rows (F-15,
-clone-owned code only). Also owed: template patch v1.6.3 for **BACKLOG F-17**.
+## ▶ Next session: scorecard gap plan **Step 1, item 3 (BACKLOG F-15, clone rows)**, then Step 2. Model: Sonnet for the clone sweeps (one agent per clone, clone-owned code only: `src/app`, domain dirs); Opus for Step 2.
+**Step 1 items 1 and 2 DONE (2026-11-13), scorecard version 12** (https://claude.ai/artifact/TognMvisj8T9GNQGtE9MbJ): design bridge row retired
+(`RETIRED` in `audit/build-scorecard.py`, template renders a grey row, not counted); `≈` accepted state added (legend, `.s-acc`, never counted as ✔).
+**No cell is marked `≈` yet.** Rule: a project decision-log row first, then put `("≈", "<reason>, D-xxx", evidence)` in OVERRIDES. Candidates: clinic K1/K2/K6,
+countertop + reservations K1/K2, showcall K1/K2/K3, claude-dashboard K3/K8, talk4me K11 (each needs its row in that project's log).
+Republish: build `audit/scorecard.template.html` with `__DATA__` replaced by `audit/scorecard.json`, read the live source in full first, then resend.
+**Re-cut Step 2 (from Step 0 data):** event toolkit K2, K5, K11, K12 (public app); storage K11, K12 (verify K4 echo reads first, then the "stays private" note is met);
+then reservations (10 gaps, SMS webhook has no timestamp window), use-case-studio (INTAKE_KEY fails open), showcall (8), countertop (8).
+Also owed: template patch v1.6.3 for **BACKLOG F-17**.
 
 ## ✅ 2026-11-09: every clone is on **v1.6.2** (13 PRs merged; earmark is the owner's, boxloop is on hold)
 

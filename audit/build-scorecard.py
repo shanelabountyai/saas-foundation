@@ -57,6 +57,9 @@ FOUNDATION = {
  "K13": ("INV-19", "src/core/audit.ts; tests/invariants/inv-19-audit-append-only.test.ts"),
  "K14": ("CLAUDE.md", "vercel.json (ignoreCommand); package.json (port 4100); src/core/cron.ts"),
 }
+# Retired rows stay listed but are not scored (owner decision 2026-11-09).
+RETIRED = {"design-bridge": "retired, not scored (project is dead)"}
+# Accepted state: put ("≈", "<reason>, D-xxx", evidence) in OVERRIDES. Only with a decision-log row in the project first.
 def split(s):
     m = re.match(r"\s*(✔|✗|N/A|\?)\s*[—:\-]?\s*(.*)", s, re.S)
     return (m.group(1), m.group(2).strip()) if m else ("?", s.strip())
@@ -85,9 +88,12 @@ for stem, name in REPOS.items():
             s, t = split(raw[k][0]); cells[k] = cell(s, t, raw[k][1] if len(raw[k]) > 1 else "", "baseline 2026-09-23")
         else:
             cells[k] = cell("N/A", "not scored in the baseline (no such surface)", "", "baseline 2026-09-23")
-    out["rows"].append({"id": stem, "name": name, "cells": cells})
+    row = {"id": stem, "name": name, "cells": cells}
+    if stem in RETIRED: row["retired"] = RETIRED[stem]
+    out["rows"].append(row)
 json.dump(out, open("scorecard.json", "w"), indent=1, ensure_ascii=False)
 tot = {}
 for r in out["rows"]:
     c = [x["s"] for x in r["cells"].values()]
-    print(f'{r["name"]:34}', "✔%d ✗%d N/A%d ?%d" % tuple(c.count(x) for x in ("✔","✗","N/A","?")))
+    if r.get("retired"): print(f'{r["name"]:34}', r["retired"]); continue
+    print(f'{r["name"]:34}', "✔%d ✗%d N/A%d ?%d" % tuple(c.count(x) for x in ("✔","✗","N/A","?")) + (" ≈%d" % c.count("≈")))

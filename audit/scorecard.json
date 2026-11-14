@@ -274,7 +274,10 @@
    "repo": "shanelabountyai/handhold",
    "pr": "https://github.com/shanelabountyai/handhold/pull/7",
    "head": "37dffdb",
-   "checks": "typecheck ok; targeted vitest 13 files 142 pass 0 fail (auth, invitations, admin-invitations, invite-token-leak, rate-limit.shared-store, config.env-example, config.env-secrets, security-headers, e2-second-person, family-invites-outlive-owner, lovedone.preferred-name, auth.signup-gate, continuity-security-races); full vitest NOT completed: binaries.prisma.sh blocked means no native query engine, so the client was generated locally (uncommitted) with the queryCompiler/wasm preview, under which about 27 tests in unrelated files fail identically on main (verified br2-t8+analytics: 7 fail on both), and the run was too slow on 2 CPUs (about 30/158 files in 35 min); backend-ci is the real gate; no lint script in backend; test:race not run (no concurrency change); no e2e suite exists"
+   "checks": "typecheck ok; targeted vitest 13 files 142 pass 0 fail (auth, invitations, admin-invitations, invite-token-leak, rate-limit.shared-store, config.env-example, config.env-secrets, security-headers, e2-second-person, family-invites-outlive-owner, lovedone.preferred-name, auth.signup-gate, continuity-security-races); full vitest NOT completed: binaries.prisma.sh blocked means no native query engine, so the client was generated locally (uncommitted) with the queryCompiler/wasm preview, under which about 27 tests in unrelated files fail identically on main (verified br2-t8+analytics: 7 fail on both), and the run was too slow on 2 CPUs (about 30/158 files in 35 min); backend-ci is the real gate; no lint script in backend; test:race not run (no concurrency change); no e2e suite exists",
+   "prStatus": [
+    "open · CI green"
+   ]
   },
   {
    "id": "bookable",
@@ -420,7 +423,10 @@
    "repo": "shanelabountyai/bookable-appointment-service",
    "pr": "https://github.com/shanelabountyai/bookable-appointment-service/pull/3",
    "head": "77c184d",
-   "checks": "Node 24. lint ok; typecheck ok; vitest 886 pass, 2 fail, 1267 skipped, 80 files failed. That is the same 80-file set as main in this sandbox: Prisma's query engine can't be downloaded (binaries.prisma.sh blocked), so every Prisma-backed test fails at client init. No new failures; 25 new tests pass. e2e not run: next build fails here (fonts.googleapis.com blocked for next/font, and no query engine). GitHub CI 'gate' was in progress when this was written. GitHub CI run 43547934244 on d2c3db2 then passed in full: lint, typecheck, migrations from scratch, drift check, the unit suite under TZ=UTC and TZ=Pacific/Kiritimati with real Postgres and the Prisma engine, and e2e on a production build at port 3300."
+   "checks": "Node 24. lint ok; typecheck ok; vitest 886 pass, 2 fail, 1267 skipped, 80 files failed. That is the same 80-file set as main in this sandbox: Prisma's query engine can't be downloaded (binaries.prisma.sh blocked), so every Prisma-backed test fails at client init. No new failures; 25 new tests pass. e2e not run: next build fails here (fonts.googleapis.com blocked for next/font, and no query engine). GitHub CI 'gate' was in progress when this was written. GitHub CI run 43547934244 on d2c3db2 then passed in full: lint, typecheck, migrations from scratch, drift check, the unit suite under TZ=UTC and TZ=Pacific/Kiritimati with real Postgres and the Prisma engine, and e2e on a production build at port 3300.",
+   "prStatus": [
+    "open · CI green"
+   ]
   },
   {
    "id": "claude-dashboard",
@@ -550,7 +556,10 @@
    "repo": "shanelabountyai/claude-dashboard",
    "pr": "https://github.com/shanelabountyai/claude-dashboard/pull/1",
    "head": "3c84761",
-   "checks": "npm test (node --test) 2 pass 0 fail on branch; new headers test fails with the middleware removed (mutation check); node --check server.js ok; no lint/typecheck scripts exist in the repo; no e2e suite"
+   "checks": "npm test (node --test) 2 pass 0 fail on branch; new headers test fails with the middleware removed (mutation check); node --check server.js ok; no lint/typecheck scripts exist in the repo; no e2e suite",
+   "prStatus": [
+    "open · no CI"
+   ]
   },
   {
    "id": "clinic",
@@ -695,7 +704,10 @@
    "repo": "shanelabountyai/clearpath",
    "pr": "https://github.com/shanelabountyai/clearpath/pull/1",
    "head": "0ee9279",
-   "checks": "typecheck ok; vitest 44 files 3446 pass 0 fail (main 3439 pass); Playwright on a production build (port 3747) 104 pass, 1 skip (screenshots), 1 fail: scheduling.spec.ts:26 depends on the date. Its next Monday (2026-11-16) has 0 seeded appointments, and this branch does not touch the seed or the calendar. No lint script exists in the repo. Local e2e used the installed chromium-1243 headless shell via a temporary config, because the pinned 1234 browser is not installed."
+   "checks": "typecheck ok; vitest 44 files 3446 pass 0 fail (main 3439 pass); Playwright on a production build (port 3747) 104 pass, 1 skip (screenshots), 1 fail: scheduling.spec.ts:26 depends on the date. Its next Monday (2026-11-16) has 0 seeded appointments, and this branch does not touch the seed or the calendar. No lint script exists in the repo. Local e2e used the installed chromium-1243 headless shell via a temporary config, because the pinned 1234 browser is not installed.",
+   "prStatus": [
+    "open · CI red (date-bound calendar test, not this PR)"
+   ]
   },
   {
    "id": "countertop",
@@ -847,7 +859,10 @@
    "repo": "shanelabountyai/countertop",
    "pr": "https://github.com/shanelabountyai/countertop/pull/1",
    "head": "e2f070f",
-   "checks": "GitHub CI on the PR (real Prisma engines, from-scratch migrations): ALL GREEN. That covers lint, typecheck, migrations, the hand-written invariant asserts, the drift check, the unit suite under both TZs, the production build and the full e2e on the production build (port 3400). Locally: lint ok; typecheck ok. vitest: TZ=UTC 1144 pass / 13 fail; TZ=Pacific/Kiritimati 1142 pass / 15 fail. All failures are in loyalty/placement/remake/rush/snapshot DB tests, which also fail on main (16 there). Environment limit: binaries.prisma.sh is blocked, so the client was generated locally (uncommitted, reverted) with engineType=client + @prisma/adapter-pg, and P2002 meta, enum introspection and concurrency behave differently under it. next build --webpack ok; the Turbopack build is blocked locally (fonts.googleapis.com unreachable; fonts mocked). Playwright e2e on that production build: 240 pass / 15 skipped / 14 fail. 13 of the failures are specs that run db:rush:test, which hits the same (businessDay, seq) adapter limit as the unit rush.test on main. The 14th is brand.spec asserting the font, which was mocked. auth/checkout/loyalty/status/kitchen specs pass. Manual: curl showed the headers; the bad-env boot is refused by name. Migration applied by hand to local PG16. Prisma drift check not run locally (no schema engine); PR CI runs it."
+   "checks": "GitHub CI on the PR (real Prisma engines, from-scratch migrations): ALL GREEN. That covers lint, typecheck, migrations, the hand-written invariant asserts, the drift check, the unit suite under both TZs, the production build and the full e2e on the production build (port 3400). Locally: lint ok; typecheck ok. vitest: TZ=UTC 1144 pass / 13 fail; TZ=Pacific/Kiritimati 1142 pass / 15 fail. All failures are in loyalty/placement/remake/rush/snapshot DB tests, which also fail on main (16 there). Environment limit: binaries.prisma.sh is blocked, so the client was generated locally (uncommitted, reverted) with engineType=client + @prisma/adapter-pg, and P2002 meta, enum introspection and concurrency behave differently under it. next build --webpack ok; the Turbopack build is blocked locally (fonts.googleapis.com unreachable; fonts mocked). Playwright e2e on that production build: 240 pass / 15 skipped / 14 fail. 13 of the failures are specs that run db:rush:test, which hits the same (businessDay, seq) adapter limit as the unit rush.test on main. The 14th is brand.spec asserting the font, which was mocked. auth/checkout/loyalty/status/kitchen specs pass. Manual: curl showed the headers; the bad-env boot is refused by name. Migration applied by hand to local PG16. Prisma drift check not run locally (no schema engine); PR CI runs it.",
+   "prStatus": [
+    "open · CI green"
+   ]
   },
   {
    "id": "event-toolkit",
@@ -1000,7 +1015,10 @@
    "repo": "shanelabountyai/event-toolkit",
    "pr": "https://github.com/shanelabountyai/event-toolkit/pull/3",
    "head": "2c81259",
-   "checks": "pnpm verify ok on the branch: typecheck ok; lint 0 errors (1 warning already present in ContentOutbox.tsx); validate:fixtures, sanity and all *-check scripts pass, including server-db-check with the new K5/K12 sections and the new env-check; build ok; ai-check ok. Baseline verify on main also passed. Manual: production build served via next start on local Postgres 16 (headers, limiter rows, boot failure on bad env); drizzle-kit migrate and db-smoke against local PG. e2e not run: no suite covers /share or /invite, and the tool routes are unchanged. Env limit: cdn.sheetjs.com blocked, so deps were installed locally with a temporary, uncommitted xlsx@0.18.5 override (lockfile unchanged). Node 22 locally vs engines >=24."
+   "checks": "pnpm verify ok on the branch: typecheck ok; lint 0 errors (1 warning already present in ContentOutbox.tsx); validate:fixtures, sanity and all *-check scripts pass, including server-db-check with the new K5/K12 sections and the new env-check; build ok; ai-check ok. Baseline verify on main also passed. Manual: production build served via next start on local Postgres 16 (headers, limiter rows, boot failure on bad env); drizzle-kit migrate and db-smoke against local PG. e2e not run: no suite covers /share or /invite, and the tool routes are unchanged. Env limit: cdn.sheetjs.com blocked, so deps were installed locally with a temporary, uncommitted xlsx@0.18.5 override (lockfile unchanged). Node 22 locally vs engines >=24.",
+   "prStatus": [
+    "open · CI red (smoke test fails on main too)"
+   ]
   },
   {
    "id": "groundwork",
@@ -1145,7 +1163,10 @@
    "repo": "shanelabountyai/groundwork",
    "pr": "https://github.com/shanelabountyai/groundwork/pull/1",
    "head": "7683ce0",
-   "checks": "npm test (tsc --noEmit + vitest on local groundwork_test, migrations via apply-migrations.sh): 31 files, 167 pass 0 fail (main baseline 154 pass); playwright e2e on production build (port 3917, CI=1): 37 pass 0 fail; no lint script in repo; manual boot check: next start with APP_URL=not-a-url fails with 'Invalid environment: APP_URL'"
+   "checks": "npm test (tsc --noEmit + vitest on local groundwork_test, migrations via apply-migrations.sh): 31 files, 167 pass 0 fail (main baseline 154 pass); playwright e2e on production build (port 3917, CI=1): 37 pass 0 fail; no lint script in repo; manual boot check: next start with APP_URL=not-a-url fails with 'Invalid environment: APP_URL'",
+   "prStatus": [
+    "open · CI green"
+   ]
   },
   {
    "id": "rental-business",
@@ -1295,7 +1316,10 @@
    "repo": "shanelabountyai/rental-business",
    "pr": "https://github.com/shanelabountyai/rental-business/pull/3",
    "head": "802925ba",
-   "checks": "Local (Node 24): lint ok (0 errors, the same 16 warnings as main); typecheck ok; check:ship-deps clean; non-DB vitest 301 pass. GitHub CI run 43551305731 on 3e839002, all green: migrations from scratch, drift check, lint, typecheck, ship-deps, vitest 3985 passed / 4 skipped / 0 failed (305 files, real Postgres, including the new token-lookup DB test), next build, then e2e on a production build: 1425 passed, 4 skipped, 1 flaky (1430 total; the flaky one is the unrelated mobile-chrome screening.spec.ts:478, which passed on retry), plus Lighthouse. Environment limit: locally the Prisma query engine is blocked (binaries.prisma.sh) and next/font needs Google Fonts, so DB tests, build and e2e ran only in CI."
+   "checks": "Local (Node 24): lint ok (0 errors, the same 16 warnings as main); typecheck ok; check:ship-deps clean; non-DB vitest 301 pass. GitHub CI run 43551305731 on 3e839002, all green: migrations from scratch, drift check, lint, typecheck, ship-deps, vitest 3985 passed / 4 skipped / 0 failed (305 files, real Postgres, including the new token-lookup DB test), next build, then e2e on a production build: 1425 passed, 4 skipped, 1 flaky (1430 total; the flaky one is the unrelated mobile-chrome screening.spec.ts:478, which passed on retry), plus Lighthouse. Environment limit: locally the Prisma query engine is blocked (binaries.prisma.sh) and next/font needs Google Fonts, so DB tests, build and e2e ran only in CI.",
+   "prStatus": [
+    "open · CI green"
+   ]
   },
   {
    "id": "restaurant-reservations",
@@ -1452,7 +1476,10 @@
    "repo": "shanelabountyai/countertop-reserve",
    "pr": "https://github.com/shanelabountyai/countertop-reserve/pull/1",
    "head": "b77e797",
-   "checks": "lint ok; typecheck ok (both after every commit); vitest 854 pass 0 fail under TZ=UTC and TZ=Pacific/Kiritimati (main baseline 821/821). DB tests ran on local Postgres 16 through an UNCOMMITTED local Prisma harness (engineType=client + @prisma/adapter-pg), because binaries.prisma.sh is blocked; migrations were applied with apply-migrations.sh. Not run: prisma migrate diff drift check (schema engine blocked; CI will run it); build:test and e2e (next/font/google cannot reach fonts.googleapis.com, network policy) — environment limits."
+   "checks": "lint ok; typecheck ok (both after every commit); vitest 854 pass 0 fail under TZ=UTC and TZ=Pacific/Kiritimati (main baseline 821/821). DB tests ran on local Postgres 16 through an UNCOMMITTED local Prisma harness (engineType=client + @prisma/adapter-pg), because binaries.prisma.sh is blocked; migrations were applied with apply-migrations.sh. Not run: prisma migrate diff drift check (schema engine blocked; CI will run it); build:test and e2e (next/font/google cannot reach fonts.googleapis.com, network policy) — environment limits.",
+   "prStatus": [
+    "open · CI green"
+   ]
   },
   {
    "id": "showcall",
@@ -1605,7 +1632,10 @@
    "repo": "shanelabountyai/showcall",
    "pr": "https://github.com/shanelabountyai/showcall/pull/6",
    "head": "d484826",
-   "checks": "lint ok; typecheck ok; vitest 48 files / 343 pass 0 fail (baseline 327); e2e Playwright on a production build 39/39 pass (local Postgres, migrations via apply-migrations.sh, seeded); prisma/seed.ts runs clean on a fresh DB; production-build boot check of the K11 env validation (valid=200, malformed=refused)"
+   "checks": "lint ok; typecheck ok; vitest 48 files / 343 pass 0 fail (baseline 327); e2e Playwright on a production build 39/39 pass (local Postgres, migrations via apply-migrations.sh, seeded); prisma/seed.ts runs clean on a fresh DB; production-build boot check of the K11 env validation (valid=200, malformed=refused)",
+   "prStatus": [
+    "open · CI green"
+   ]
   },
   {
    "id": "storage-business",
@@ -1769,7 +1799,10 @@
    "repo": "shanelabountyai/self-storage-app",
    "pr": "https://github.com/shanelabountyai/self-storage-app/pull/29",
    "head": "f80e5f80",
-   "checks": "lint ok (0 errors, 11 pre-existing warnings); typecheck ok (app + tests); check:ship-deps clean; vitest 2812 pass / 10 fail / 2214 skipped. All 10 failures are DB suites that do not skip without a database (public-rate-limit-db, auth-audience-db). 9 fail the same way on main; the 10th is the new K5 DB case. Environment limit: binaries.prisma.sh is blocked, so the Prisma client was generated with --no-engine and no DB suite, next build, db:drift or e2e could run. New non-DB tests all pass. Both configs were checked by hand to refuse a Neon URL. PR opened as a draft (repo rule)."
+   "checks": "lint ok (0 errors, 11 pre-existing warnings); typecheck ok (app + tests); check:ship-deps clean; vitest 2812 pass / 10 fail / 2214 skipped. All 10 failures are DB suites that do not skip without a database (public-rate-limit-db, auth-audience-db). 9 fail the same way on main; the 10th is the new K5 DB case. Environment limit: binaries.prisma.sh is blocked, so the Prisma client was generated with --no-engine and no DB suite, next build, db:drift or e2e could run. New non-DB tests all pass. Both configs were checked by hand to refuse a Neon URL. PR opened as a draft (repo rule).",
+   "prStatus": [
+    "open draft · CI green"
+   ]
   },
   {
    "id": "talk4me",
@@ -1916,7 +1949,10 @@
    "repo": "shanelabountyai/talk4me",
    "pr": "https://github.com/shanelabountyai/talk4me/pull/1",
    "head": "2d104e7",
-   "checks": "lint ok; typecheck (tsc -b) ok; vitest 22 files 152 pass 0 fail; npm run build ok; Playwright chromium on prod build 24 pass 4 skipped 0 fail; mobile-safari (WebKit) not run (no WebKit browser installed); VITE_TTS_PROVIDER=bogus build fails as intended"
+   "checks": "lint ok; typecheck (tsc -b) ok; vitest 22 files 152 pass 0 fail; npm run build ok; Playwright chromium on prod build 24 pass 4 skipped 0 fail; mobile-safari (WebKit) not run (no WebKit browser installed); VITE_TTS_PROVIDER=bogus build fails as intended",
+   "prStatus": [
+    "open · no CI"
+   ]
   },
   {
    "id": "use-case-studio",
@@ -2079,7 +2115,10 @@
    "repo": "shanelabountyai/use-case-studio",
    "pr": "https://github.com/shanelabountyai/use-case-studio/pull/3",
    "head": "8cb6285",
-   "checks": "tsc --noEmit ok; vitest 319 pass 0 fail 4 skipped (BK_LIVE); next build ok (Google Fonts mocked, fonts.googleapis.com blocked); next start smoke: headers, boot env check, worker 401 ok; migrations 0000-0004 + limiter SQL verified on local PG16; no lint script in repo; integration/e2e not run locally (neon-http driver needs a Neon DB) - CI on the PR runs them"
+   "checks": "tsc --noEmit ok; vitest 319 pass 0 fail 4 skipped (BK_LIVE); next build ok (Google Fonts mocked, fonts.googleapis.com blocked); next start smoke: headers, boot env check, worker 401 ok; migrations 0000-0004 + limiter SQL verified on local PG16; no lint script in repo; integration/e2e not run locally (neon-http driver needs a Neon DB) - CI on the PR runs them",
+   "prStatus": [
+    "open · CI green"
+   ]
   },
   {
    "id": "use-case-trio",
@@ -2223,7 +2262,12 @@
    "repo": "shanelabountyai/use-case-support-ticket-deflection, shanelabountyai/use-case-insurance-fnol-intake, shanelabountyai/use-case-grant-proposal-assembly",
    "pr": "https://github.com/shanelabountyai/use-case-support-ticket-deflection/pull/1 https://github.com/shanelabountyai/use-case-insurance-fnol-intake/pull/1 https://github.com/shanelabountyai/use-case-grant-proposal-assembly/pull/1",
    "head": "use-case-support-ticket-deflection c6ed112, use-case-insurance-fnol-intake 4ce78ca, use-case-grant-proposal-assembly 8e3801c",
-   "checks": "Node 24, run serially per repo on the branch. use-case-support-ticket-deflection: vitest 74 pass 0 fail; use-case-insurance-fnol-intake: vitest 19 pass 0 fail; use-case-grant-proposal-assembly: vitest 19 pass 0 fail. All three: tsc typecheck ok; next build ok; next start smoke ok (5 security headers on /, 500 + 'Invalid environment: DATABASE_URL' without env, 200 with it); vitest/playwright refuse a neon.tech URL; playwright --list loads (0 specs, no e2e/ dir, so e2e not run). Lint FAILS on main and branch identically in all three: no eslint.config.* exists (pre-existing, not fixed). Env limit: prisma generate cannot fetch the query engine (binaries.prisma.sh blocked), so npm ci ran with --ignore-scripts; no test needs the generated client. Tests use DATABASE_URL=postgresql://postgres:postgres@localhost:5432/<repo>_test exported (no .env.test created; no DB created since no test connects)."
+   "checks": "Node 24, run serially per repo on the branch. use-case-support-ticket-deflection: vitest 74 pass 0 fail; use-case-insurance-fnol-intake: vitest 19 pass 0 fail; use-case-grant-proposal-assembly: vitest 19 pass 0 fail. All three: tsc typecheck ok; next build ok; next start smoke ok (5 security headers on /, 500 + 'Invalid environment: DATABASE_URL' without env, 200 with it); vitest/playwright refuse a neon.tech URL; playwright --list loads (0 specs, no e2e/ dir, so e2e not run). Lint FAILS on main and branch identically in all three: no eslint.config.* exists (pre-existing, not fixed). Env limit: prisma generate cannot fetch the query engine (binaries.prisma.sh blocked), so npm ci ran with --ignore-scripts; no test needs the generated client. Tests use DATABASE_URL=postgresql://postgres:postgres@localhost:5432/<repo>_test exported (no .env.test created; no DB created since no test connects).",
+   "prStatus": [
+    "open · no CI",
+    "open · no CI",
+    "open · no CI"
+   ]
   },
   {
    "id": "clone-adjuster",
@@ -3687,5 +3731,6 @@
    "cells": {},
    "retired": "paused, not scored (on hold since 2026-10-19, still on v1.2.1)"
   }
- ]
+ ],
+ "statusChecked": "2026-11-13 23:10 CT"
 }

@@ -1,0 +1,123 @@
+{
+ "row": "event-toolkit",
+ "repo": "shanelabountyai/event-toolkit",
+ "main_head": "2c81259",
+ "branch_head": "4332fab",
+ "pr_url": "https://github.com/shanelabountyai/event-toolkit/pull/3",
+ "checks": "pnpm verify ok on the branch: typecheck ok; lint 0 errors (1 warning already present in ContentOutbox.tsx); validate:fixtures, sanity and all *-check scripts pass, including server-db-check with the new K5/K12 sections and the new env-check; build ok; ai-check ok. Baseline verify on main also passed. Manual: production build served via next start on local Postgres 16 (headers, limiter rows, boot failure on bad env); drizzle-kit migrate and db-smoke against local PG. e2e not run: no suite covers /share or /invite, and the tool routes are unchanged. Env limit: cdn.sheetjs.com blocked, so deps were installed locally with a temporary, uncommitted xlsx@0.18.5 override (lockfile unchanged). Node 22 locally vs engines >=24.",
+ "method": "Full sweep of main 2c81259 (same HEAD as the 2026-11-10 rescore): every route handler, 'use server' file, workspace page guard, token page, next.config headers, env read and DB entry point re-read",
+ "cells": {
+  "K1": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Database sessions are revocable (rows deleted on removal). Session, invitation and share tokens are stored as SHA-256. The emailed link opens /sign-in/confirm, whose button POSTs the callback; the Auth.js callback itself still accepts a GET from someone who already holds the token. Re-read on main.",
+   "evidence": "apps/web/lib/auth.ts:70-118; packages/server-db/src/tokens.ts:16-69; packages/server-db/src/schema.ts:92,155-156,193-194; apps/web/lib/sign-in-link.ts:248-268; packages/server-db/src/workspaces.ts (removeMember deletes sessions)",
+   "change": null,
+   "gap_reason": null
+  },
+  "K2": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Owners and admins sign in with a magic link only. No MFA/TOTP code exists. Re-read on main.",
+   "evidence": "apps/web/lib/auth.ts:107-119; grep totp|mfa|2fa over apps/ and packages/ finds nothing",
+   "change": null,
+   "gap_reason": "Needs an owner decision: build a TOTP second factor enforced in the server guard (accessContextFor / can()) for owner and admin, or record an accepted-risk decision. A new MFA system is out of scope for mechanical fixes."
+  },
+  "K3": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "All 8 'use server' files and the API routes resolve the user and role server-side (requireUser/accessContextFor/currentUser) before touching data. Each workspace page that reads the DB calls the session helpers, and /conflicts is client IndexedDB only. Re-read on main.",
+   "evidence": "apps/web/lib/session.ts:172-215; apps/web/app/workspace/actions.ts:17; apps/web/app/workspace/[workspaceId]/members/actions.ts:36; share/actions.ts:18; privacy/actions.ts:26; retention/actions.ts:29; apps/web/app/api/sync/push/route.ts:20,42; api/sync/pull/route.ts:19,29; api/migrate/route.ts:28,55; api/me/route.ts:20",
+   "change": null,
+   "gap_reason": null
+  },
+  "K4": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Reads and writes by id carry ctx.workspaceId. The role is re-read from the DB on every call. canGrantRole and canRemoveMember stop an admin granting, inviting or demoting an owner (SEC-01). revokeShareLink is scoped by workspaceId. Re-read on main.",
+   "evidence": "packages/server-db/src/workspaces.ts:140-160,185-230; packages/server-db/src/share-links.ts:67-80",
+   "change": null,
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, unauthenticated token lookups (/share/[token] and /invite/[token] page reads, plus the share issue action) are limited per IP per scope (300 per 15 min) in the existing Postgres rate_limits table, before the lookup. Sign-in (5 per email, 20 per IP) and share-issue writes were already limited. Tested in server-db-check, and rows confirmed against a production build on local Postgres.",
+   "evidence": "packages/server-db/src/rate-limits.ts allowTokenRead; apps/web/app/share/[token]/page.tsx (allowTokenRead before resolveShareLink); apps/web/app/(auth)/invite/[token]/page.tsx; apps/web/app/share/[token]/actions.ts; apps/web/lib/client-ip.ts; scripts/server-db-check.ts 'Unauthenticated token reads are limited (K5)'",
+   "change": "d0fadba: allowTokenRead + wiring into share/invite pages and share action; clientIp helper; server-db-check cases",
+   "gap_reason": null
+  },
+  "K6": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Share and invite tokens are SHA-256 at rest, with expiry and revocation. The share page shows an allowlisted projection (contacts are opt-in). Confirmed live on a local production build: /share/x and /invite/x send Referrer-Policy: no-referrer, Cache-Control: private, no-cache, no-store, and X-Robots-Tag noindex.",
+   "evidence": "packages/server-db/src/share-links.ts:40-110; packages/server-db/src/schema.ts:155,193; apps/web/next.config.ts:338-341; apps/web/app/share/[token]/page.tsx:8-15; curl -sI against next start (branch build)",
+   "change": null,
+   "gap_reason": null
+  },
+  "K7": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Global X-Frame-Options DENY, CSP frame-ancestors 'none', nosniff, Referrer-Policy and HSTS. Confirmed with curl -sI against a local production build.",
+   "evidence": "apps/web/next.config.ts:325-342",
+   "change": null,
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "The cron bearer is compared with timingSafeEqual and fails closed with 503 when CRON_SECRET is unset. No NEXT_PUBLIC_/VITE_ variables. git ls-files tracks only .env.example. Re-read on main.",
+   "evidence": "apps/web/lib/cron-auth.ts:228-235; apps/web/app/api/cron/retention/route.ts:21-26; grep NEXT_PUBLIC|VITE_ finds nothing; git ls-files | grep .env",
+   "change": null,
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No inbound webhooks. Resend and Anthropic are outbound only.",
+   "evidence": "apps/web/app/api lists ai, auth, cron, me, migrate, sync only",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Server actions and routes log through the redacting logger. The only raw console.error calls are in 3 client components. Invitation email returns not-sent when Resend is unconfigured. On the branch, K11's boot check also fails production when AUTH_RESEND_KEY/EMAIL_FROM are missing.",
+   "evidence": "apps/web/lib/redact.ts:1-101; grep console. over apps/web/app, lib, server-db (only DemoEventButton.tsx, BudgetView.tsx, MigrateClient.tsx); apps/web/lib/invite-email.ts:26-55; apps/web/lib/env.ts (production email rule)",
+   "change": null,
+   "gap_reason": null
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, apps/web/lib/env.ts holds a dependency-free schema of every variable read, validated at boot by apps/web/instrumentation.ts. Malformed values, half-configured pairs, a non-integer AI_MONTHLY_TOKEN_CAP and production without email stop the server, naming variables only. .env.example now names every variable read, including RESTORED_DATABASE_URL, ALLOW_CLOUD_DB and the Vercel-set ones. scripts/env-check.ts (in verify) tests the rules and catches schema / .env.example / process.env drift. Also checked by hand: next start with DATABASE_URL alone logs InvalidEnvError and answers 500.",
+   "evidence": "apps/web/lib/env.ts; apps/web/instrumentation.ts; event-planner-app/.env.example; scripts/env-check.ts; apps/web/app/api/ai/[feature]/route.ts (serverEnv)",
+   "change": "4332fab: env schema + boot validation + env-check script + .env.example completed. Note: the prior cell cited apps/web/.env.example, but the file is event-planner-app/.env.example",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, packages/server-db/src/local-guard.ts refuses non-local DB hosts unless VERCEL_ENV is set or ALLOW_CLOUD_DB=1. It is applied in getDb(), drizzle.config.ts, db-smoke, seed-staging and restore-check. The DB checks still run on in-process PGlite, and CI e2e builds and starts production against 127.0.0.1. Tested in server-db-check, and by hand: migrate and db-smoke refuse a neon.tech URL and run cleanly against local Postgres 16.",
+   "evidence": "packages/server-db/src/local-guard.ts; packages/server-db/src/client.ts (assertLocalOrAllowed); packages/server-db/drizzle.config.ts; scripts/db-smoke.ts; scripts/seed-staging.ts; scripts/restore-check.ts; .github/workflows/ci.yml:81-82,105; scripts/server-db-check.ts 'Cloud database guard (K12)'",
+   "change": "613e452: local-guard + wiring + tests; NEXT.md production-migrate step and .env.example name ALLOW_CLOUD_DB",
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "access_events is append-only in the DB. BEFORE UPDATE/DELETE and BEFORE TRUNCATE triggers raise, and only FK-driven actor nulling or a workspace cascade passes. server-db-check's 'audit log is append-only (SEC-10)' section passes. Re-read on main.",
+   "evidence": "packages/server-db/drizzle/0004_append_only_access_events.sql:9-28; scripts/server-db-check.ts 'The audit log is append-only (SEC-10)'",
+   "change": null,
+   "gap_reason": null
+  },
+  "K14": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "vercel.json has ignoreCommand: sh vercel-ignore.sh (diffs from VERCEL_GIT_PREVIOUS_SHA at the repo root, builds when it cannot resolve that commit, excludes docs and *.md but keeps the prompts) and deploymentEnabled false. Port 3200 is pinned in package.json dev/start. The single cron is constant-time and fails closed. Re-read on main.",
+   "evidence": "apps/web/vercel.json:3-6; apps/web/vercel-ignore.sh:373-376; apps/web/package.json:383-385; apps/web/lib/cron-auth.ts; apps/web/app/api/cron/retention/route.ts:21-26",
+   "change": null,
+   "gap_reason": null
+  }
+ }
+}

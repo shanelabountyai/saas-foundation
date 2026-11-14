@@ -1,0 +1,122 @@
+{
+ "row": "alongside-handhold",
+ "repo": "shanelabountyai/handhold",
+ "main_head": "37dffdb",
+ "branch_head": "cd11a1f",
+ "pr_url": "https://github.com/shanelabountyai/handhold/pull/7",
+ "checks": "typecheck ok; targeted vitest 13 files 142 pass 0 fail (auth, invitations, admin-invitations, invite-token-leak, rate-limit.shared-store, config.env-example, config.env-secrets, security-headers, e2-second-person, family-invites-outlive-owner, lovedone.preferred-name, auth.signup-gate, continuity-security-races); full vitest NOT completed: binaries.prisma.sh blocked means no native query engine, so the client was generated locally (uncommitted) with the queryCompiler/wasm preview, under which about 27 tests in unrelated files fail identically on main (verified br2-t8+analytics: 7 fail on both), and the run was too slow on 2 CPUs (about 30/158 files in 35 min); backend-ci is the real gate; no lint script in backend; test:race not run (no concurrency change); no e2e suite exists",
+ "cells": {
+  "K1": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Sessions are watermark-revocable: authenticate re-reads isActive and tokenVersion on every request. Refresh tokens are single-use DB rows, and replaying one revokes all sessions. Verify, reset and invite tokens are stored only as sha256 hashes and are spent by POST. Re-read on HEAD 37dffdb.",
+   "evidence": "backend/src/http/app.ts:183-210; backend/src/auth/routes.ts:207-238; backend/src/auth/service.ts:37,46,234; backend/src/admin/invitations.ts:7-17",
+   "change": null,
+   "gap_reason": null
+  },
+  "K2": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Admin login requires a TOTP code, compared with timingSafeEqual and single-use per RFC 6238, with the secret sealed under TOTP_ENCRYPTION_KEY. authenticateAdmin is default-deny by role. /admin/* also needs a verified Cloudflare Access JWT, and the gate is closed when that is unset. Spot-checked.",
+   "evidence": "backend/src/admin/totp.ts:58-91; backend/src/http/app.ts:214-240; backend/src/admin/routes.ts:189,195-200; backend/src/admin/cf-access.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K3": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Full sweep: a script listed all 219 route registrations, and each one without a guard was read by hand. All private routes use authenticate, authenticateAdmin or gated. The only unguarded routes are the intentionally public /health, GET /auth/signup (returns a flag), signup/login/refresh/verify/forgot/reset, DELETE /auth/refresh (acts on the caller's own cookie), /admin/auth/login, /feedback/public-idea, invitation preview/decline (token, limited on the branch) and /billing/webhook (Stripe signature). It is an API only, so there are no 'use server' exports.",
+   "evidence": "backend/src/companion/routes.ts:34; backend/src/family/routes.ts:94-121; backend/src/auth/routes.ts:90,242; backend/src/billing/routes.ts:24-31; backend/src/checkin/routes.ts:21-51",
+   "change": null,
+   "gap_reason": null
+  },
+  "K4": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Relies on the Opus K4 sweep of 2026-09-26 (93 routes), plus a spot check of modules added since. Check-In getRecipient/enrol call resolveMembership with assertRead/assertWrite. Notice read/unclaim scope by noticeId, recipientUserId and the escalation's lovedOneId. The five LOW oracle items from the sweep remain.",
+   "evidence": "backend/src/checkin/service.ts:53-68; backend/src/checkin/notify.ts:268-301; backend/src/permissions/service.ts:19-31",
+   "change": null,
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, GET /invitations/:token/preview (30 per 10 min) and POST /invitations/:token/decline (10 per 10 min) opt into the Postgres-backed limiter that already covers every other public route. On main both were unthrottled. A test proves the 429.",
+   "evidence": "backend/src/family/routes.ts:96,117; backend/src/http/app.ts:166-179; backend/tests/auth.test.ts (K5 it.each)",
+   "change": "01193c3 K5: config.rateLimit on preview/decline + 429 tests",
+   "gap_reason": null
+  },
+  "K6": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Family and admin invite tokens are stored as sha256 hashes with a 14-day expiry (inviteExpiresAt is checked on lookup) and can be revoked or renewed. The token routes send no-store, no-referrer and noindex, and the URL is masked in logs and the 404 handler. Read on HEAD, and the existing invite-token-leak test passes.",
+   "evidence": "backend/src/admin/invitations.ts:7-17; backend/src/family/service.ts:85,93; backend/src/family/routes.ts:83-89; backend/src/logging/redact.ts:43-47; backend/src/http/app.ts:241-245",
+   "change": null,
+   "gap_reason": null
+  },
+  "K7": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "The API sets nosniff, CSP with frame-ancestors none, X-Frame-Options DENY, Referrer-Policy no-referrer, HSTS and CORP on every response. frontend, admin-frontend and handhold-site vercel.json all set CSP frame-ancestors, Referrer-Policy, nosniff and HSTS. The security-headers test passes.",
+   "evidence": "backend/src/http/app.ts:249-256; frontend/vercel.json; admin-frontend/vercel.json; handhold-site/vercel.json",
+   "change": null,
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "JWT_SECRET, ANALYTICS_PEPPER and TOTP_ENCRYPTION_KEY require 32+ characters and refuse public placeholders outside NODE_ENV=test. TOTP uses timingSafeEqual. The CF Access gate is closed when unset. Stripe signatures are verified by the SDK. git ls-files shows only .env.example. The frontends use no VITE_ variables.",
+   "evidence": "backend/src/config/env.ts:14-30; backend/src/admin/totp.ts:75; backend/src/http/app.ts:101-113; git ls-files",
+   "change": null,
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "The Stripe webhook keeps the raw body in its own scope, and constructEvent checks the signature with the SDK's default 300s timestamp tolerance. Every event re-reads the subscription from Stripe, so replays converge. A throw returns non-2xx, so Stripe retries. There is no event table, but the handler is idempotent by design.",
+   "evidence": "backend/src/billing/routes.ts:22-31; backend/src/billing/service.ts:278-300",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Pino redacts auth headers, cookies and token or password fields. Request URLs and 404s mask invite tokens. buildApp refuses to boot in production without an email transport, so the log-only sender (which logs the link text) is unreachable there.",
+   "evidence": "backend/src/logging/redact.ts:10-47; backend/src/http/app.ts:118-120,236-245; backend/src/lib/email.ts:31-40",
+   "change": null,
+   "gap_reason": null
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "The zod schema validates env at import, so the app does not boot on a bad value. On the branch .env.example also lists CHECKIN_CONSENT_HMAC_KEY, CHECKIN_TRANSCRIPT_KEY, FEATURE_CHECKIN and FEATURE_CHECKIN_CALLS, plus the platform and test names. A new test scans src/, scripts/ and tests/ and fails on any variable read but not listed (it fails on main with eight). FEATURE_* and RENDER_GIT_COMMIT stay outside the schema by design.",
+   "evidence": "backend/src/config/env.ts:79-230; backend/.env.example; backend/tests/config.env-example.test.ts; backend/src/config/feature-flags.ts:67-88",
+   "change": "cd11a1f K11: .env.example completed + guard test",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Tests use in-process PGlite. The only path to a real Postgres is RACE_PG_URL, and harness.ts throws unless that host is localhost or 127.0.0.1 and the DB name ends in _race. That is a code-level guard (stricter than the foundation's cloud-host regex). The harness never reads DATABASE_URL. There is no e2e suite, so the production-build rule does not apply yet.",
+   "evidence": "backend/tests/helpers/harness.ts:30-43; backend/src/db/client.ts:52-70; .github/workflows/backend-ci.yml:34-70",
+   "change": null,
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Migrations add BEFORE UPDATE/DELETE and TRUNCATE triggers making AdminActionLog, ModerationAction and VaultAccessLog (and ProfileResolutionLog) append-only. UPDATE may only null columns, for the erasure path. A table-owning role could still drop the triggers; the production REVOKE is an OPS item.",
+   "evidence": "backend/prisma/migrations/20260923050000_audit_append_only/migration.sql:16-44; backend/prisma/migrations/20261012200000_resolution_log_append_only/migration.sql",
+   "change": null,
+   "gap_reason": null
+  },
+  "K14": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "All three vercel.json files (handhold-site, frontend, admin-frontend) carry the foundation's ignoreCommand pattern, scoped to their own folder. PORT defaults to 4301 (Handhold's 4300-4302 row). The cron is a Render cron job running a CLI script, not an HTTP route, so the constant-time cron compare does not apply.",
+   "evidence": "handhold-site/vercel.json:5; frontend/vercel.json:2; admin-frontend/vercel.json:2; backend/src/config/env.ts:116; render.yaml:103-112",
+   "change": null,
+   "gap_reason": null
+  }
+ }
+}

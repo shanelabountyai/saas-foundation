@@ -1,0 +1,122 @@
+{
+ "row": "countertop",
+ "repo": "shanelabountyai/countertop",
+ "main_head": "e2f070f",
+ "branch_head": "b7462ca",
+ "pr_url": "https://github.com/shanelabountyai/countertop/pull/1",
+ "checks": "GitHub CI on the PR (real Prisma engines, from-scratch migrations): ALL GREEN. That covers lint, typecheck, migrations, the hand-written invariant asserts, the drift check, the unit suite under both TZs, the production build and the full e2e on the production build (port 3400). Locally: lint ok; typecheck ok. vitest: TZ=UTC 1144 pass / 13 fail; TZ=Pacific/Kiritimati 1142 pass / 15 fail. All failures are in loyalty/placement/remake/rush/snapshot DB tests, which also fail on main (16 there). Environment limit: binaries.prisma.sh is blocked, so the client was generated locally (uncommitted, reverted) with engineType=client + @prisma/adapter-pg, and P2002 meta, enum introspection and concurrency behave differently under it. next build --webpack ok; the Turbopack build is blocked locally (fonts.googleapis.com unreachable; fonts mocked). Playwright e2e on that production build: 240 pass / 15 skipped / 14 fail. 13 of the failures are specs that run db:rush:test, which hits the same (businessDay, seq) adapter limit as the unit rush.test on main. The 14th is brand.spec asserting the font, which was mocked. auth/checkout/loyalty/status/kitchen specs pass. Manual: curl showed the headers; the bad-env boot is refused by name. Migration applied by hand to local PG16. Prisma drift check not run locally (no schema engine); PR CI runs it.",
+ "cells": {
+  "K1": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Staff cookie is still a salted but deterministic SHA-256 digest of the shared passcode. There are no session rows, and the only revocation is rotating the passcode for everyone (SEC-03). There are no sign-in links. Checked by reading staff-auth.ts, login/actions.ts and middleware.ts.",
+   "evidence": "apps/web/lib/staff-auth.ts:35,54-58,72-81; apps/web/app/kitchen/login/actions.ts:16-45; apps/web/middleware.ts",
+   "change": null,
+   "gap_reason": "Shared passcode by design: candidate for 'accepted' (GAP-PLAN step 1), which needs an owner decision-log row. Otherwise it needs a new session system, which is out of scope here."
+  },
+  "K2": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Single shared passcode with no second factor and no per-user roles. Checked by reading login/actions.ts.",
+   "evidence": "apps/web/app/kitchen/login/actions.ts:16-45",
+   "change": null,
+   "gap_reason": "Accepted candidate (shared passcode by design). Needs an owner decision-log row, or a new MFA system, which is not built here."
+  },
+  "K3": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, every kitchen page (8) calls requireStaffPage, both kitchen route handlers (events, report/export) return staffRouteRefusal first, and every 'use server' export in app/kitchen (except login) calls requireStaff() first: 44 exports in 4 files. All use the same staffCookieGeneration as the middleware. Checked with a full sweep of 7 'use server' files, 18 pages and 3 route handlers. cart, checkout, /api/updates and /status are public by design. require-staff.test.ts scans the source and fails on a missing guard (verified by removing one). The e2e auth.spec passes.",
+   "evidence": "apps/web/lib/require-staff.ts; apps/web/lib/require-staff.test.ts; apps/web/app/kitchen/actions.ts; apps/web/app/kitchen/menu/actions.ts; apps/web/app/kitchen/settings/actions.ts; apps/web/app/kitchen/loyalty/actions.ts; apps/web/app/kitchen/events/route.ts; apps/web/app/kitchen/report/export/route.ts",
+   "change": "5457e25: requireStaff/requireStaffPage/staffRouteRefusal at every kitchen entry point, plus the source-scan test",
+   "gap_reason": null
+  },
+  "K4": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "Single-restaurant, single-tenant product with no customer accounts. Kitchen by-id reads are staff-only and global by design. The customer status handle is the 192-bit token itself, and a wrong token gets notFound. Spot check.",
+   "evidence": "apps/web/app/status/[token]/page.tsx; packages/db/placement.ts:355-356",
+   "change": null,
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, a Postgres RateLimit table holds fixed-window counters, one atomic upsert per hit. Limits apply to kitchen sign-in (10/15m per IP), verification start (10 per IP, 5 per hashed phone), verification confirm (20 per IP), placement (120 per IP) and status-token reads (300 per IP). The retention sweep cleans up old windows. On main there was no limiter anywhere (grepped). The DB test passes, including a race of 10 concurrent hits with exactly 3 admitted.",
+   "evidence": "packages/db/rate-limit.ts; packages/db/rate-limit.test.ts; packages/db/prisma/migrations/20261113100000_rate_limit/migration.sql; apps/web/lib/rate-limit.ts; apps/web/app/kitchen/login/actions.ts; apps/web/app/checkout/actions.ts; apps/web/app/status/[token]/page.tsx",
+   "change": "8390aa2: RateLimit model + migration, limiter, call sites, sweep",
+   "gap_reason": null
+  },
+  "K6": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "On the branch, /status/:path* sends no-referrer, X-Robots-Tag noindex and Cache-Control private, no-store. Verified by a unit test and by curl against next start. The status token is still stored raw (unique column) with no expiry or revocation.",
+   "evidence": "apps/web/next.config.ts (statusLinkHeaders); apps/web/lib/security-headers.test.ts; packages/db/prisma/schema.prisma:589; packages/db/placement.ts:312,355,705",
+   "change": "09cd2ff: capability-link headers on /status",
+   "gap_reason": "Hashing at rest changes a contract: the idempotent placement replay (findUnique by idempotencyKey) returns statusToken from the row. Expiry and revocation change what customers see. Both need an owner design decision (SEC-05)."
+  },
+  "K7": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, next.config.ts headers() sends Referrer-Policy strict-origin-when-cross-origin, nosniff, CSP frame-ancestors 'none', X-Frame-Options DENY and HSTS (2y, includeSubDomains) on /:path*. poweredByHeader is off. Verified by a unit test and by curl against a production build.",
+   "evidence": "apps/web/next.config.ts; apps/web/lib/security-headers.test.ts",
+   "change": "becbc86: global security headers",
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Passcode compare is constant-time over fixed-length digests. An unset STAFF_PASSCODE locks /kitchen. An unset pepper refuses enrolment and token minting. PIN, code and verified-token checks use timingSafeEqual. No NEXT_PUBLIC_/VITE_ vars, no tracked .env except .env.example (names only), and no secrets in query strings. Checked with a grep plus a read of the auth and verification files.",
+   "evidence": "apps/web/lib/staff-auth.ts:45,63-81; packages/db/loyalty.ts:57; packages/db/staff.ts:104-107; packages/db/verification.ts; .env.example",
+   "change": null,
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No inbound webhooks: the only route handlers are /api/updates, /kitchen/events and /kitchen/report/export, and payment is a mock provider. Full listing of route.ts files.",
+   "evidence": "apps/web/app/api/updates/route.ts; packages/db/provider.ts:46",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "stubSmsVerifyProvider returns the code, and requestCheckoutVerification sends echoedCode to the browser. That includes production builds, and nothing fails loudly. The structured logs (placement/export lines) carry no tokens or bodies.",
+   "evidence": "packages/db/verification.ts:58,132-133; apps/web/app/checkout/actions.ts (requestCheckoutVerification); apps/web/app/checkout/checkout-form.tsx:512-516; apps/web/lib/log.ts",
+   "change": null,
+   "gap_reason": "Making production refuse the stub would break self-serve reward redemption on the live demo, which changes behaviour users see. Gating it needs a new env value. Both need an owner decision, or a real SMS provider (SEC-01, GAP-PLAN step 4)."
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, apps/web/lib/env.ts validates DATABASE_URL (required, postgres/prisma URL), DIRECT_URL, PORT and NODE_ENV, and fails with names only. instrumentation.ts runs it once at server start. Verified on next start: a bad DATABASE_URL makes requests fail with 'Invalid environment: DATABASE_URL'. .env.example names every process.env read in apps/packages/scripts, with tooling vars commented, and env.test.ts enforces that.",
+   "evidence": "apps/web/lib/env.ts; apps/web/instrumentation.ts; apps/web/lib/env.test.ts; .env.example",
+   "change": "b7462ca: env schema at boot + .env.example completeness test",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Tests run on local Postgres (.env.test first-wins). resetDatabase(), used by every DB test, the seed and the rush, calls assertLocalDatabase, which refuses non-local hosts. e2e runs build:test then start:test (a production build).",
+   "evidence": "packages/db/testing/index.ts:17; packages/db/local-guard.ts:48-62; package.json:19-21; apps/web/playwright.config.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "The order event log, MenuChangeEvent (availability) and the loyalty ledger are append-only by DB trigger. Other privileged staff changes write with plain updates and no log row: store hours, service settings, ordering pause, contact, loyalty on/off, staged prices, and item prep weight, description and image. Full read of settings/menu/kitchen actions and the trigger migrations. This is downgraded from the 2026-11-10 ✔, which was a spot check.",
+   "evidence": "packages/db/prisma/migrations/20260825210943_init/migration.sql:222-231; packages/db/prisma/migrations/20260916110000_menu_change_event/migration.sql:55; packages/db/prisma/migrations/20260902140000_loyalty_ledger/migration.sql:181; apps/web/app/kitchen/settings/actions.ts:110-112,156,195,220,258; apps/web/app/kitchen/actions.ts (setOrderingPaused); packages/db/loyalty.ts:684-689; packages/db/menu.ts:320-322",
+   "change": null,
+   "gap_reason": "Auditing settings and menu-content edits is a new audit-trail feature (a table or event kinds plus a trigger). Per the brief, that needs an owner decision on scope, or an owner ruling that these are not 'privileged changes'."
+  },
+  "K14": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "apps/web/vercel.json ignoreCommand is byte-identical to the foundation's canonical one, and git.deploymentEnabled is false. Port 3400 is the default in dev/start and in the playwright config. There are no cron routes.",
+   "evidence": "apps/web/vercel.json:4,6; apps/web/package.json:6,8",
+   "change": null,
+   "gap_reason": null
+  }
+ }
+}

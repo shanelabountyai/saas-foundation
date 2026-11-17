@@ -1,5 +1,5 @@
 {
- "asOf": "2026-11-13",
+ "asOf": "2026-11-17",
  "foundationVersion": "v1.6.2",
  "keys": {
   "K1": "Sessions",
@@ -819,10 +819,12 @@
      "basis": "rescored 2026-11-10 (agent sweep)"
     },
     "K2": {
-     "s": "✗",
-     "text": "No second factor for owners or admins; they sign in with a magic link only and no MFA code exists anywhere in the repo.",
-     "evidence": "apps/web/lib/auth.ts:96-107; grep totp|mfa|2fa over apps and packages finds nothing",
-     "secs": [],
+     "s": "≈",
+     "text": "Accepted, SEC-14 (owner decision 2026-11-17): no second factor; sign-in is a 15-minute magic link spent only by POST, sessions are revocable. Revisit at the first external pilot workspace with real attendee data.",
+     "evidence": "SECURITY_BACKLOG.md SEC-14; c711541",
+     "secs": [
+      "SEC-14"
+     ],
      "basis": "rescored 2026-11-10 (agent sweep)"
     },
     "K3": {
@@ -842,11 +844,11 @@
      "basis": "rescored 2026-11-10 (agent sweep)"
     },
     "K5": {
-     "s": "✗",
-     "text": "Sign-in (5 per email, 20 per IP), the share-link issue write (SEC-06, fixed) and the AI route are limited in a shared Postgres table, but reads of the public /share/[token] and /invite/[token] pages have no limit (256-bit tokens make guessing impractical).",
-     "evidence": "packages/server-db/src/rate-limits.ts:15-45; apps/web/app/(auth)/sign-in/actions.ts:40; packages/server-db/src/share-links.ts:251-254; packages/server-db/src/ai-usage.ts:47-48; apps/web/app/share/[token]/page.tsx:22",
+     "s": "✔",
+     "text": "Sign-in (5 per email, 20 per IP), share-link issue writes and the AI route are limited in Postgres, and reads of /share/[token], /invite/[token] and the share issue action now take a per-IP limit (300 per 15 min) checked before the token (SEC-13). On main, not yet deployed (deploys are manual).",
+     "evidence": "packages/server-db/src/rate-limits.ts allowTokenLookup; apps/web/app/share/[token]/page.tsx; apps/web/app/(auth)/invite/[token]/page.tsx; scripts/server-db-check.ts; c711541",
      "secs": [
-      "SEC-06"
+      "SEC-13"
      ],
      "basis": "rescored 2026-11-10 (agent sweep)"
     },
@@ -892,16 +894,16 @@
      "basis": "rescored 2026-11-10 (agent sweep)"
     },
     "K11": {
-     "s": "✗",
-     "text": "No schema-validated env at boot: variables are read with presence checks scattered across auth.ts, client.ts and the AI route (AI_MONTHLY_TOKEN_CAP is Number()-coerced to 0); .env.example does list every var the app uses (names only).",
-     "evidence": "apps/web/lib/auth.ts:42-48; packages/server-db/src/client.ts:17-25; apps/web/app/api/ai/[feature]/route.ts:17; apps/web/.env.example; no env.ts or instrumentation.ts exists",
+     "s": "✔",
+     "text": "apps/web/lib/env.ts is a zod schema of every variable the app reads, parsed in next.config.ts so a malformed value fails the build; app reads go through env(); errors name keys only; .env.example names every key (OPS-12). On main, not yet deployed.",
+     "evidence": "apps/web/lib/env.ts; apps/web/next.config.ts; .env.example; c711541",
      "secs": [],
      "basis": "rescored 2026-11-10 (agent sweep)"
     },
     "K12": {
-     "s": "✗",
-     "text": "DB checks run on in-process PGlite and CI e2e builds and starts production against a local 127.0.0.1 Postgres, but no code guard refuses a cloud DATABASE_URL (db-smoke and seed-staging take whatever URL they are given, and the app's .env.local points at Neon).",
-     "evidence": "packages/server-db/src/testing.ts; .github/workflows/ci.yml:81-82,105,118; scripts/db-smoke.ts:50-52; scripts/seed-staging.ts:39",
+     "s": "✔",
+     "text": "assertLocalOrAllowed (copied from foundation INV-18) refuses a Neon/RDS/Supabase host in getDb(), db-smoke and seed-staging unless VERCEL_ENV is set or ALLOW_CLOUD_DB=1; local .env files point at localhost; checks run on PGlite and CI e2e on local Postgres (OPS-12).",
+     "evidence": "packages/server-db/src/local-guard.ts; packages/server-db/src/client.ts; scripts/db-smoke.ts; scripts/seed-staging.ts; scripts/server-db-check.ts; c711541",
      "secs": [],
      "basis": "rescored 2026-11-10 (agent sweep)"
     },

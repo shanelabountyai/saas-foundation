@@ -1,6 +1,17 @@
 # NEXT
 
-## ▶ Next session: scorecard gap plan **Step 2** (Opus, one project per session). Order: event toolkit (K2, K5, K11, K12), storage (K11, K12), reservations, use-case-studio, showcall, countertop.
+## ▶ Next session: scorecard gap plan **Step 2**, project 2: **storage** (K11, K12), Opus. Then reservations, use-case-studio, showcall, countertop.
+**Before touching a repo, check its open `scorecard-fixes-2026-11-13` PR** (`gh pr list`): the 11-13 sweep already built fixes for many ◐ cells.
+Event toolkit lost an hour duplicating its PR #3. Usually the right move is to review, fix CI and merge that PR, not rewrite it.
+**Scorecard republish now edits the LIVE page's data** (read it, change `const D=` rows in place, strip the `<!doctype…<body>` wrapper, publish).
+The local `build-scorecard.py` output is behind the live page (no PR/◐ fields, removed rows still present), so rebuilding from it would drop data.
+
+## ✅ 2026-11-17: Step 2 project 1, event toolkit (scorecard version 17: ✔12 ≈1 N/A1, 0 ✗)
+K5, K11 and K12 fixed on event-toolkit `main` (`c711541`, `c565f4e`); K2 accepted (owner, its SECURITY_BACKLOG SEC-14). PR #3 was closed as superseded,
+and its loopback guard, migrate guard and env scan were ported (owner's choice). The env check runs at **build**, so a bad production value fails the deploy.
+**Not deployed:** event toolkit deploys are manual. Its NEXT.md lists Shane's hook run plus live checks; until then the public site runs the old code.
+
+## (superseded) Step 2 (Opus, one project per session). Order: event toolkit (K2, K5, K11, K12), storage (K11, K12), reservations, use-case-studio, showcall, countertop.
 **Step 1 DONE (2026-11-13), scorecard version 13** (https://claude.ai/artifact/TognMvisj8T9GNQGtE9MbJ): items 1-2 earlier (design bridge retired, `≈` state);
 **item 3 (BACKLOG F-15) closed: 14 clone rows added**, one Sonnet sweep each against `origin/main` (data `audit/rescore/clones/<name>.json`, built by `build-scorecard.py` `CLONES`;
 boxloop is a paused row). Results: bracketry, coursework, earmark, loanbook, pulseboard, quorum clean (0 ✗); adjuster 1, commons 1, gavel 1, housefile 1, ledgerleave 1, tradepost 1, callboard 3, footnote 3.

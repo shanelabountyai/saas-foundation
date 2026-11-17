@@ -21,7 +21,7 @@
  },
  "K5": {
   "s": "✔",
-  "text": "Sign-in (5 per email, 20 per IP), share-link issue writes and the AI route are limited in Postgres, and reads of /share/[token], /invite/[token] and the share issue action now take a per-IP limit (300 per 15 min) checked before the token (SEC-13). On main, not yet deployed (deploys are manual).",
+  "text": "Sign-in (5 per email, 20 per IP), share-link issue writes and the AI route are limited in Postgres, and reads of /share/[token], /invite/[token] and the share issue action now take a per-IP limit (3,000 per 15 min, sized for a crew behind one venue IP) checked before the token (SEC-13). On main, not yet deployed (deploys are manual).",
   "evidence": "packages/server-db/src/rate-limits.ts allowTokenLookup; apps/web/app/share/[token]/page.tsx; apps/web/app/(auth)/invite/[token]/page.tsx; scripts/server-db-check.ts; c711541"
  },
  "K6": {

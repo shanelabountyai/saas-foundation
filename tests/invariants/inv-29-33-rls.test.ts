@@ -6,6 +6,8 @@ import { orgTables } from '../../scripts/rls-policies';
 import { seedApp } from '../fixtures/app';
 import { db } from '@/core/db';
 import { CROSS_ORG_FILES } from '@/core/db/cross-org';
+import { GLOBAL_MODELS } from '@/core/db/global-models';
+import { globalModels } from '@/app/global-models';
 import { withOrg } from '@/core/db/rls';
 import { dbSystem } from '@/core/db/system';
 import { env } from '@/core/env';
@@ -137,3 +139,42 @@ describe.skipIf(!enforce)('INV-29: no org set, no rows; org A set, only A rows',
     }
   });
 });
+
+// ---- v1.7.1, audit A-11
+
+const allModels = () =>
+  readdirSync('prisma/schema')
+    .filter((n) => n.endsWith('.prisma'))
+    .flatMap((n) => [...readFileSync(join('prisma/schema', n), 'utf8').matchAll(/^model (\w+) \{/gm)].map((m) => m[1]!));
+
+describe('INV-30 v1.7.1 (A-11): every model is org-scoped or named global with a reason', () => {
+  it('no model falls outside RLS unlisted, and no listed one is stale', () => {
+    const scoped = new Set(orgTables().map((t) => t.model));
+    const listed = { ...GLOBAL_MODELS, ...globalModels };
+    const models = allModels();
+    expect(models.filter((m) => !scoped.has(m) && !(m in listed)), 'add each to src/app/global-models.ts with its reason').toEqual([]);
+    expect(Object.keys(listed).filter((m) => !models.includes(m)), 'listed, but no such model').toEqual([]);
+    expect(Object.keys(listed).filter((m) => scoped.has(m)), 'listed global, but it has an orgId column').toEqual([]);
+    expect(Object.entries(listed).filter(([, why]) => why.trim().length < 10).map(([m]) => m), 'each needs a reason').toEqual([]);
+  });
+});
+
+describe.skipIf(!enforce)('INV-29 v1.7.1 (A-11): an append-style row is inserted for no org or this org, never another', () => {
+  it.each(['AuditEvent', 'Outbox'].filter((t) => orgTables().some((o) => o.table === t)))('%s', async (table) => {
+    const [a, b] = [randomUUID(), randomUUID()];
+    const tag = randomUUID().slice(0, 8);
+    for (const [id, n] of [[a, 'a'], [b, 'b']] as const) await dbSystem.org.create({ data: { id, slug: `a11-${n}-${tag}`, name: n } });
+    const insert = (orgId: string | null) =>
+      withOrg({ orgId: a }, (tx) =>
+        table === 'AuditEvent'
+          ? tx.auditEvent.createMany({ data: [{ orgId, actorUserId: null, action: 'a11.probe' }] })
+          : (tx as unknown as { outbox: { createMany: (x: object) => Promise<unknown> } }).outbox.createMany({
+              data: [{ id: randomUUID(), orgId, channel: 'email', to: 'x@example.test', template: 'a11', data: {} }],
+            }),
+      );
+    await expect(insert(a)).resolves.toBeDefined();
+    await expect(insert(null)).resolves.toBeDefined();
+    await expect(insert(b)).rejects.toThrow(/row-level security/);
+  });
+});
+

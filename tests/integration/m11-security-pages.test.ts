@@ -54,9 +54,11 @@ describe('audit viewer query', () => {
   it('filters by actor, action prefix and day, newest first, and pages with before', async () => {
     const org = await makeOrg();
     const ada = await makeUser('ada@example.test');
-    await audit({ orgId: org.id, userId: ada.id }, 'member.invited');
-    await audit({ orgId: org.id, userId: null }, 'org.created');
-    await audit({ orgId: (await makeOrg('other')).id, userId: ada.id }, 'member.invited');
+    // Written as the owner role, like every fixture here: since v1.7.1 (A-11) the app role cannot write an audit row for an
+    // org outside that org's scope, and these rows are set-up, not the code under test.
+    await audit({ orgId: org.id, userId: ada.id }, 'member.invited', {}, db);
+    await audit({ orgId: org.id, userId: null }, 'org.created', {}, db);
+    await audit({ orgId: (await makeOrg('other')).id, userId: ada.id }, 'member.invited', {}, db);
     const day = (d: Date) => d.toISOString().slice(0, 10);
 
     expect((await auditEvents(db, org.id)).map((e) => e.action)).toEqual(['org.created', 'member.invited']);

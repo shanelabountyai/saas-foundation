@@ -176,3 +176,11 @@ describe('INV-39 v1.6.4: a call that ran is always counted, and the estimate mus
     await expect(withBudget(ctx, 'answer', 20_000n, fn)).rejects.toBeInstanceOf(BudgetExceeded);
   });
 });
+
+describe('INV-39 v1.7.1: the database refuses a non-positive hold (A-09)', () => {
+  it.each([0n, -1n])('costMicros %s is refused by AiHold_costMicros_positive', async (cost) => {
+    const ctx = await org();
+    await expect(db.aiHold.create({ data: { orgId: ctx.orgId, costMicros: cost, expiresAt: new Date(Date.now() + 60_000) } })).rejects.toThrow(/AiHold_costMicros_positive/);
+  });
+});
+

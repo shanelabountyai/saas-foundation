@@ -13,7 +13,7 @@ import { env } from '@/core/env';
 import { Refused } from '@/core/errors';
 import { hashToken, newToken } from '@/core/tokens';
 import { finishSso, resolver, sharedIssuers, SSO_STATE_COOKIE, startSso } from '@/modules/sso/flow';
-import { addDomain, dns, saveConnection, setRequired, txtValue, verifyDomain } from '@/modules/sso/settings';
+import { addDomain, dns, saveConnection, setRequired, SSO_DOMAIN_VERIFIED_ONCE, txtValue, verifyDomain } from '@/modules/sso/settings';
 import { makeUser, resetAuthTables, signInAs } from '../helpers/auth';
 import { jar, NavSignal } from '../helpers/next';
 import { addMember, actAs, makeOrg } from '../helpers/org';
@@ -184,6 +184,38 @@ describe('INV-35: no join outside the org’s verified domains', () => {
       await db.ssoDomain.deleteMany({ where: { orgId: org.id } });
       await verifyDomain(ctx, d.id);
       expect((await db.ssoDomain.findUniqueOrThrow({ where: { id: d.id } })).verifiedAt).not.toBeNull();
+    } finally {
+      dns.resolveTxt = real;
+    }
+  });
+});
+
+describe('INV-35 v1.7.1 (A-14): one verified org per domain is the database’s rule, not only a check', () => {
+  const DUP = 'dup.example';
+  async function claimant(slug: string) {
+    const o = await makeOrg(slug);
+    const ctx = await actAs((await addMember(o.id, 'owner', `owner@${slug}.example`)).id, slug);
+    await addDomain(ctx, DUP);
+    return { o, ctx, id: (await db.ssoDomain.findFirstOrThrow({ where: { orgId: o.id } })).id };
+  }
+
+  it('a second verified row for a domain is refused by the constraint', async () => {
+    const [a, b] = [await claimant('dup-a'), await claimant('dup-b')];
+    await db.ssoDomain.update({ where: { id: a.id }, data: { verifiedAt: now() } });
+    await expect(db.ssoDomain.update({ where: { id: b.id }, data: { verifiedAt: now() } })).rejects.toThrow(SSO_DOMAIN_VERIFIED_ONCE);
+  });
+
+  it('two orgs verifying at once: exactly one wins, the other gets the usual refusal', async () => {
+    const [a, b] = [await claimant('dup-a'), await claimant('dup-b')];
+    const real = dns.resolveTxt;
+    try {
+      dns.resolveTxt = async () => [[txtValue(a.o.id, DUP)], [txtValue(b.o.id, DUP)]];
+      const r = await Promise.allSettled([verifyDomain(a.ctx, a.id), verifyDomain(b.ctx, b.id)]);
+      expect(r.filter((x) => x.status === 'fulfilled')).toHaveLength(1);
+      const lost = r.find((x) => x.status === 'rejected') as PromiseRejectedResult;
+      expect(lost.reason).toBeInstanceOf(Refused);
+      expect(String(lost.reason.message)).toMatch(/Another org/);
+      expect(await db.ssoDomain.count({ where: { domain: DUP, verifiedAt: { not: null } } })).toBe(1);
     } finally {
       dns.resolveTxt = real;
     }

@@ -117,6 +117,10 @@ export async function addDomain(ctx: OrgCtx, input: string) {
 const domainOf = async (ctx: OrgCtx, id: string) =>
   (await withOrg(ctx, (tx) => tx.ssoDomain.findFirst({ where: { id, ...inOrg(ctx) } }), { atomic: false })) ?? notFound();
 
+/** The exclusion constraint (migration 20261118000002): one verified row per domain, across every org. */
+export const SSO_DOMAIN_VERIFIED_ONCE = 'SsoDomain_verified_once';
+const VERIFIED_ELSEWHERE = 'Another org has already verified this domain.';
+
 export async function verifyDomain(ctx: OrgCtx, id: string) {
   assertOwner(ctx);
   const d = await domainOf(ctx, id);
@@ -125,11 +129,18 @@ export async function verifyDomain(ctx: OrgCtx, id: string) {
   if (!records.some((r) => r.join('') === txtValue(ctx.orgId, d.domain))) {
     throw new Refused(`No matching TXT record at ${txtName(d.domain)} yet. DNS changes can take a while to appear.`);
   }
-  if (await domainVerifiedElsewhere(d.domain, ctx.orgId)) throw new Refused('Another org has already verified this domain.');
-  await withOrg(ctx, async (tx) => {
-    await tx.ssoDomain.update({ where: { id: d.id }, data: { verifiedAt: now() } });
-    await audit(ctx, 'sso.domain_verified', { data: { domain: d.domain } }, tx);
-  });
+  if (await domainVerifiedElsewhere(d.domain, ctx.orgId)) throw new Refused(VERIFIED_ELSEWHERE);
+  try {
+    await withOrg(ctx, async (tx) => {
+      await tx.ssoDomain.update({ where: { id: d.id }, data: { verifiedAt: now() } });
+      await audit(ctx, 'sso.domain_verified', { data: { domain: d.domain } }, tx);
+    });
+  } catch (e) {
+    // The check above is advisory; the constraint is the rule (A-14). Matched by name, not SQLSTATE: Prisma reports it as
+    // P2039 with 23P01 nested in the adapter error, and the name is the part every shape of the error carries.
+    if (String((e as Error)?.message).includes(SSO_DOMAIN_VERIFIED_ONCE)) throw new Refused(VERIFIED_ELSEWHERE);
+    throw e;
+  }
 }
 
 export async function removeDomain(ctx: OrgCtx, id: string) {

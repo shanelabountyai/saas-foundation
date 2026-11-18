@@ -2,7 +2,7 @@
 
 Entries prefixed `security:` are mandatory for anything touching an invariant. Clones must take a `security:` release within 7 days.
 
-## 1.7.0 (unreleased; tag after merge)
+## 1.7.0 (2026-11-18)
 
 security: the owner decisions on audit A-04 and A-08 (2026-11-17): a credential does not outlive the right that made it.
 **Clones must take this within 7 days.** **One migration** (`20261117000000_webhook_endpoint_creator`, guarded for a clone

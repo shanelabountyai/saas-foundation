@@ -1,5 +1,12 @@
 # NEXT
 
+## ▶ 2026-11-18: v1.7.1 PR open (branch `security/v1.7.1`): A-11, A-14, AiHold CHECK
+v1.7.0 merged 2026-11-18 (`0c0f709`, PR #26, CI green); **its tag is not pushed yet** (the agent's push was refused: tagging
+waits for the owner's word). After the owner merges v1.7.1: tag `v1.7.0` and `v1.7.1`, push the tags to quorum, coursework and
+commons too, roll both to every clone within 7 days (v1.7.0 needs `onRoleChanged` in each clone's `org-hooks.ts`; v1.7.1 needs
+each clone's orgId-less models in `src/app/global-models.ts`, and earmark checks its `audit(`/`enqueue(` calls without a `tx`).
+Left from the audit, each needing a decision: A-12, A-14's DNS re-check, webhook address pinning, invariants in `modules-removed`.
+
 ## ▶ 2026-11-17: v1.7.0 PR open (branch `security/v1.7.0`): A-04, A-08 (owner decisions 2026-11-17)
 Webhook endpoints are disabled with their creator's membership; a demotion below `apikeys.manage` revokes keys and disables
 endpoints. One migration (guarded; backfills creators from the audit log and disables orphans), one breaking change

@@ -2,7 +2,35 @@
 
 Entries prefixed `security:` are mandatory for anything touching an invariant. Clones must take a `security:` release within 7 days.
 
-## 1.7.0 (unreleased; tag after merge)
+## 1.7.1 (unreleased; tag after merge)
+
+security: the audit's low findings that need no owner decision (A-11, A-14, A-09's database half). **Clones must take this
+within 7 days.** **Three migrations**, no env change, no signature change.
+
+- **A-11 RLS insert on append-style tables.** `AuditEvent` and `Outbox` accepted an insert for any org (`WITH CHECK (true)`).
+  The policy is now "no org, or the org this transaction is scoped to" (`scripts/rls-policies.ts`; migration
+  `20261118000000_rls_append_insert_scoped`, Outbox guarded). Behaviour in RLS off: unchanged. In enforce mode: an
+  `audit()` or `enqueue()` for an org, outside that org's `withOrg` and not through `asSystem`, is now refused. The template
+  has none; **an enforce clone (earmark) should grep its own `audit(` and `enqueue(` calls that pass no `tx`**.
+- **A-11 every model is classified.** New invariant: each Prisma model is org-scoped (RLS) or named in
+  `src/core/db/global-models.ts` (template) or the new clone-owned `src/app/global-models.ts`, with a reason. A table owned
+  through a parent (loanbook's ledger) goes in the clone's list, so it can no longer fall outside RLS and INV-34 unnoticed.
+  This documents, it does not add policies: the app role can still read `Session`, `LoginToken` and the rest in enforce mode.
+- **A-14 one verified org per domain is a constraint.** `SsoDomain_verified_once` (an exclusion constraint, which Prisma
+  ignores, so `migrate dev` will not try to drop it); `verifyDomain` maps a violation to the usual "Another org has already
+  verified this domain." Two orgs verifying at once: exactly one wins (tested). Migration `20261118000002`, sso-guarded.
+  **It fails if two orgs already hold one domain verified**: clear `verifiedAt` on the wrong row first.
+- **A-09 in the database:** `AiHold_costMicros_positive` (`CHECK > 0`, `NOT VALID`, so live holds are left alone).
+
+Upgrade: merge, `npm ci`, `prisma migrate deploy`. A clone with its own models that have no `orgId` lists them in
+`src/app/global-models.ts` (the invariant names each one missing).
+
+Still open from the audit, each needing a decision or a dependency: A-12 (`TRUNCATE` on the audit log: a statement trigger
+would also refuse every clone's test reset, so it needs an agreed escape hatch), A-14's re-check of verified domains (unverify
+on a missing TXT record risks a lock-out from a DNS blip), webhook address pinning (a custom `undici` dispatcher: a new
+dependency), and running the invariant suite in the `modules-removed` CI job (it needs a Postgres service there).
+
+## 1.7.0 (2026-11-18; tag `v1.7.0` not yet pushed)
 
 security: the owner decisions on audit A-04 and A-08 (2026-11-17): a credential does not outlive the right that made it.
 **Clones must take this within 7 days.** **One migration** (`20261117000000_webhook_endpoint_creator`, guarded for a clone

@@ -1,0 +1,122 @@
+{
+ "row": "showcall",
+ "repo": "shanelabountyai/showcall",
+ "main_head": "d484826",
+ "branch_head": "6edc329",
+ "pr_url": "https://github.com/shanelabountyai/showcall/pull/6",
+ "checks": "lint ok; typecheck ok; vitest 48 files / 343 pass 0 fail (baseline 327); e2e Playwright on a production build 39/39 pass (local Postgres, migrations via apply-migrations.sh, seeded); prisma/seed.ts runs clean on a fresh DB; production-build boot check of the K11 env validation (valid=200, malformed=refused)",
+ "cells": {
+  "K1": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "No users or sessions. A shared HTTP Basic demo password in proxy.ts (D-032) gates every route, and that is not a revocable session. Checked: read proxy.ts and src/demo-gate.ts, and grepped for session code.",
+   "evidence": "proxy.ts:4-19; src/demo-gate.ts:13-21",
+   "change": null,
+   "gap_reason": "No users by design (D-032). The gap plan lists this as an 'accepted' candidate. It needs an owner decision-log row, or an auth system the owner has decided on. Auth was not built per the brief."
+  },
+  "K2": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "No users or roles, so there is no MFA. Checked: same read as K1.",
+   "evidence": "src/demo-gate.ts:3-9",
+   "change": null,
+   "gap_reason": "Same as K1: an accepted candidate that needs an owner decision. An MFA system was not built."
+  },
+  "K3": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "proxy.ts puts the shared password in front of every route except /api/cron (which checks its own bearer). There is no per-entry-point guard or identity in the 19 files with 'use server'. Checked: read the proxy matcher and listed every 'use server' file.",
+   "evidence": "proxy.ts:5-19; app/events/[eventId]/*/page.tsx ('use server' actions)",
+   "change": null,
+   "gap_reason": "Same as K1: no identity to guard with until the owner decides on users. An accepted candidate."
+  },
+  "K4": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, every by-id write takes eventId and scopes its lookup: speaker, version, budget line, block/threshold, RFP item/RFP/quote/contract, contingency plan, room. Another event's id throws not-found and writes nothing. Vendor, Staff and hotel ids are a cross-event directory with no eventId, so there is nothing to scope them to. Checked: full sweep of every 'use server' action and every exported src function taking an id. Grid, portal, callsheet, recap, staffing, cascade and file routes were already scoped. Added a cross-event test per module.",
+   "evidence": "src/bureau/bureau.ts:86-150; src/content/lock.ts:17-49; src/content/pipeline.ts:107-111; src/budget/budget.ts:45-48; src/attrition/attrition.ts:194-268; src/rfp/rfp.ts:113-212; src/contingency/contingency.ts:161-195; src/venue/venue.ts:54-62; app/events/[eventId]/speakers/page.tsx:72-85",
+   "change": "a4ba2a0: added eventId-first signatures with scoped lookups in 18 functions, updated the pages, seed and tests, and added an 'event scoping (SEC-02)' test in 8 test files",
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, a Postgres fixed-window limiter (RateLimit table, atomic upsert) covers every portal write (30 per link hash per 15 min) and every portal token read (600 per IP per 15 min) on the 4 portal pages, recap downloads and the crew SSE route. Main has no limiter. Checked: grepped the portal pages and routes, and ran unit tests plus e2e.",
+   "evidence": "src/rate-limit.ts:12-57; prisma/migrations/20261113120000_rate_limit/migration.sql; app/portal/[token]/page.tsx; app/portal/call/[token]/page.tsx; app/portal/client/[token]/page.tsx; app/portal/recap/[token]/page.tsx; app/portal/recap/[token]/file/[fileId]/route.ts; app/api/live/call/[token]/route.ts; src/rate-limit.test.ts",
+   "change": "6edc329: added the RateLimit migration, src/rate-limit.ts and the portal wiring, plus a daily sweep in the cron. The migration must be applied before deploy.",
+   "gap_reason": null
+  },
+  "K6": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Portal tokens are stored as SHA-256 hashes, 32 random bytes each. A reissue overwrites the hash. Links expire a week after the event (linkLive). /portal/* sends no-store, no-referrer and noindex. Pages are server components that render selected fields only. Checked: spot check of src/portal.ts, pipeline resolvePortal and next.config.ts.",
+   "evidence": "src/portal.ts:11-22; src/content/pipeline.ts:50-57; next.config.ts:24-31",
+   "change": null,
+   "gap_reason": null
+  },
+  "K7": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "next.config.ts headers() sets X-Frame-Options DENY, frame-ancestors 'none', nosniff, Referrer-Policy and HSTS on /:path*, pinned by src/security-headers.test.ts. This was already on main (commit d335f75, merged in PR #4 on 2026-10-26). The 11-10 score read the older HEAD d52dcb7.",
+   "evidence": "next.config.ts:14-31; src/security-headers.test.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "The demo password and CRON_SECRET are compared in constant time over sha256 digests. On Vercel both fail closed when unset. There are no NEXT_PUBLIC_ vars, and git ls-files shows only .env.example. Checked: read both files and grepped.",
+   "evidence": "src/demo-gate.ts:13-21; src/cron-auth.ts:10-14",
+   "change": null,
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No webhooks. Checked: the only app/api routes are cron and the live SSE streams.",
+   "evidence": "app/api/",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No outbound provider: reminders and nags go to DB outboxes. A grep of app/, src/ and proxy.ts (excluding tests and generated code) found no console logging.",
+   "evidence": "src/chase/chase.ts:145; src/budget/compliance.ts:114",
+   "change": null,
+   "gap_reason": null
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, src/env.ts lists every variable read. instrumentation.ts validates them at server start and names bad keys only; a production build was verified to refuse a malformed LIVE_POLL_MS. .env.example names every key. src/env.test.ts sweeps app/, src/, prisma/ and the root configs for unknown process.env reads and checks .env.example against the schema. On main, .env.example lacked DEMO_ACCESS_PASSWORD, CRON_SECRET, SHOWCALL_ALLOW_CLOUD_DB and LIVE_POLL_MS/LIVE_MAX_MS, and there was no schema.",
+   "evidence": "src/env.ts:16-51; instrumentation.ts:1-5; .env.example:1-17; src/env.test.ts",
+   "change": "b1ee592: added src/env.ts, instrumentation.ts and src/env.test.ts, and expanded .env.example",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "db.ts and prisma.config.ts refuse neon/rds/supabase URLs unless SHOWCALL_ALLOW_CLOUD_DB is set. Tests use local Postgres. e2e runs on a production build (next build plus next start :4000). Checked: read the files and ran e2e.",
+   "evidence": "src/db.ts:7-10; prisma.config.ts:11-14; playwright.config.ts:17-21",
+   "change": null,
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "BEFORE UPDATE/DELETE triggers raise exceptions on the history tables, including the ShowChange log, across 5 migrations, and the tests assert /append-only/. No row records a verified actor, because there is no per-user auth. Checked: grepped the migrations and read the bureau and pipeline append-only tests.",
+   "evidence": "prisma/migrations/20260921170417_init/migration.sql; prisma/migrations/20261019120000_show_change_log/migration.sql; src/bureau/bureau.test.ts:66-74",
+   "change": null,
+   "gap_reason": null
+  },
+  "K14": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "ignoreCommand in vercel.json is canonical. Port 4000 is in the package.json dev and start scripts. The cron route uses cronAllowed, which compares in constant time with timingSafeEqual over digests and returns false in production when CRON_SECRET is unset. This was already on main (commit 8cca063, PR #4, 2026-10-26). The 11-10 score read d52dcb7.",
+   "evidence": "vercel.json:7; package.json:8,10; app/api/cron/escalate/route.ts:12; src/cron-auth.ts:10-14",
+   "change": null,
+   "gap_reason": null
+  }
+ }
+}

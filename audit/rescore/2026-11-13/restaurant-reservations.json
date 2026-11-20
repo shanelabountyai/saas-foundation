@@ -1,0 +1,122 @@
+{
+ "row": "restaurant-reservations",
+ "repo": "shanelabountyai/countertop-reserve",
+ "main_head": "b77e797",
+ "branch_head": "642a7cb",
+ "pr_url": "https://github.com/shanelabountyai/countertop-reserve/pull/1",
+ "checks": "lint ok; typecheck ok (both after every commit); vitest 854 pass 0 fail under TZ=UTC and TZ=Pacific/Kiritimati (main baseline 821/821). DB tests ran on local Postgres 16 through an UNCOMMITTED local Prisma harness (engineType=client + @prisma/adapter-pg), because binaries.prisma.sh is blocked; migrations were applied with apply-migrations.sh. Not run: prisma migrate diff drift check (schema engine blocked; CI will run it); build:test and e2e (next/font/google cannot reach fonts.googleapis.com, network policy) — environment limits.",
+ "cells": {
+  "K1": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Unchanged. The staff session is still a fixed SHA-256 passcode-digest cookie (30 days) with no server-side rows; the only way to revoke it is rotating the passcode. Manage tokens are plaintext. Checked by reading staff-auth.ts and the login action on main.",
+   "evidence": "apps/web/lib/staff-auth.ts:15-19,29-37,50-54; packages/db/prisma/schema.prisma:150",
+   "change": null,
+   "gap_reason": "Shared passcode by design and an 'accepted' candidate per the gap plan. Closing it needs a decision-log row, or a StaffSession table (owner decision; not built)."
+  },
+  "K2": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "No per-user accounts; one shared passcode, no second factor. Unchanged.",
+   "evidence": "apps/web/lib/staff-auth.ts:1-13",
+   "change": null,
+   "gap_reason": "Accepted candidate (shared passcode by design). Needs an owner decision-log row; building MFA is out of scope."
+  },
+  "K3": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, all six host 'use server' exports (move, assign, undo, ready, walkIn, edit) call requireStaff() as their first statement, and the floor, board, hours and report pages call it too; the middleware stays as the outer layer. Exceptions: signIn (public by design, attempt-limited) and the static design sheet (renders no data); /api/floor-updates returns only a cursor. Full sweep of app/host plus the API routes; enforced by a source test.",
+   "evidence": "apps/web/lib/require-staff.ts:11-13; apps/web/app/host/actions.ts:32,47,55,61,68; apps/web/app/host/hours/actions.ts:20; apps/web/app/host/page.tsx:92; apps/web/lib/require-staff.test.ts; apps/web/middleware.ts:41-48",
+   "change": "ccc24f1: requireStaff() in every host action and data page, plus a source test",
+   "gap_reason": null
+  },
+  "K4": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "Single restaurant, no tenant id in the schema. Guest writes resolve only from the manage token, re-read FOR UPDATE; host surfaces are single-tenant. One LOW note stands: an idempotency-key replay returns the booking for that key without an owner check (the key is a random UUID minted per form). Spot-checked guest.ts, placement.ts and the guest actions.",
+   "evidence": "packages/db/guest.ts:97,125,154; packages/db/placement.ts:103-113; apps/web/app/m/[token]/actions.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "On the branch: Postgres-backed fixed-window limits (RateLimit table, atomic upsert, hashed client key). Staff sign-in allows 10 wrong passcodes per 15 min per address, then locks that address out, right passcode included. Booking action: 20 per 15 min. Manage page and writes: 60 per 15 min, counted before the token lookup. Old counters are swept by cron. The HTTP Basic demo gate is still unlimited.",
+   "evidence": "packages/db/rate-limit.ts:20-24,34-40; packages/db/prisma/migrations/20261113120000_rate_limit/migration.sql; apps/web/lib/staff-signin.ts:20,25; apps/web/app/book/actions.ts:39; apps/web/app/m/[token]/actions.ts:28; apps/web/app/m/[token]/page.tsx:91; apps/web/lib/demo-gate.ts:34-64",
+   "change": "b70f076: RateLimit table and limiter; limits on staff sign-in, booking and manage link; cron sweep of old counters",
+   "gap_reason": "The demo-gate Basic password check (edge middleware, no DB) is not limited. Closing it needs either Node-runtime middleware (proxy.ts) with a DB lockout check on correct-password requests, or an owner decision that the demo gate is not access control (it is documented that way and sits beside the K1/K2 accepted candidates)."
+  },
+  "K6": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "On the branch, /m/* sends Referrer-Policy no-referrer, Cache-Control private no-store, and X-Robots-Tag noindex. The manage token is still 128-bit plaintext at rest, with no expiry or re-issue.",
+   "evidence": "apps/web/next.config.ts:34-46; apps/web/next.config.test.ts; packages/db/prisma/schema.prisma:150; packages/db/sweep.ts:142; packages/db/inbound.ts:192",
+   "change": "57ded25: no-referrer/no-store/noindex on /m/:path*",
+   "gap_reason": "Hashing at rest is a redesign: reminders (sweep.ts) and SMS replies (inbound.ts) rebuild the link from the stored raw token, so a hash would need re-issue on every message or sealed storage. Expiry changes what guests see. Owner decision."
+  },
+  "K7": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, next.config.ts headers() applies Referrer-Policy strict-origin-when-cross-origin, X-Content-Type-Options nosniff, CSP frame-ancestors 'none', X-Frame-Options DENY and HSTS (2y, includeSubDomains) to /:path*, and poweredByHeader is off. Covered by a config-level test, and smoke.spec.ts asserts them on the built app (e2e not run here).",
+   "evidence": "apps/web/next.config.ts:8-14,33; apps/web/next.config.test.ts; apps/web/e2e/smoke.spec.ts",
+   "change": "70ffbe8: global security headers",
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Constant-time compares (XOR loop, timingSafeEqual); staff, cron and webhook fail closed when unset; no NEXT_PUBLIC_ variables (now enforced by env.test.ts); only .env.example is tracked. The demo gate fails open when unset (SEC-04, documented demo-only). Spot-checked.",
+   "evidence": "apps/web/lib/staff-auth.ts:42-54; apps/web/app/api/cron/sweep/route.ts:13-18; apps/web/app/api/sms/inbound/route.ts:52-53; packages/db/inbound.ts:49-55; apps/web/lib/demo-gate.ts:39; .gitignore:3-4",
+   "change": null,
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, the HMAC-SHA256 covers `${x-timestamp}.${raw body}` and is compared with timingSafeEqual, and a timestamp more than 300s from the server clock is refused, as is a missing or malformed one. Fail-closed 503 when unset, bounded raw-body read, idempotent claim under an advisory lock with the unique providerMessageId backstop, and a single transaction (a failed event rolls back and the provider's retry re-applies it): all unchanged. Read in full.",
+   "evidence": "packages/db/inbound.ts:33,40-55,96-100,153-160; apps/web/app/api/sms/inbound/route.ts:52-66; packages/db/inbound.test.ts",
+   "change": "050423d (+642a7cb comment): timestamp inside the MAC with a 5-minute window; e2e signer and DEMO.md curl updated",
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Nothing logs tokens or bodies (the only console calls are in the demo seed script). Production still always uses mockProvider, so SMS is silently never sent, and the host 'ready' action and the cron sweep report success.",
+   "evidence": "apps/web/app/host/actions.ts:63; apps/web/app/api/cron/sweep/route.ts:22; packages/db/messages.ts:20-31",
+   "change": null,
+   "gap_reason": "The mock in production is the PRD's 'mock in v1' and the hosted demo depends on it: the outbox states, the host 'ready' notice and the daily sweep. Failing loudly would change what a user sees. Owner decision: wire a carrier, or record that mock-in-production is accepted for the demo."
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, apps/web/lib/env.ts declares every variable read. DATABASE_URL is required and must be a Postgres URL; the others are validated when set. instrumentation.ts runs parseEnv at Node server boot; errors give key names only. .env.example lists every variable, including DEMO_ACCESS_PASSWORD, TEST_DATABASE_NAME and SEED_ALLOW_HOST, with pool-cap guidance. An invariant test keeps code reads, the schema and .env.example in agreement.",
+   "evidence": "apps/web/lib/env.ts:23-55; apps/web/instrumentation.ts:4-8; .env.example; apps/web/lib/env.test.ts",
+   "change": "4ec3022: env schema at boot, .env.example completed, invariant test",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "The code guard refuses non-local hosts and any database other than TEST_DATABASE_NAME. e2e builds and serves a production build (no server reuse by default), and CI uses a local Postgres service. Verified by reading the files.",
+   "evidence": "packages/db/testing/identity.ts:6,32-54,75-78; packages/db/testing/index.ts:35-38; apps/web/playwright.config.ts:25-40; .github/workflows/ci.yml:25-40",
+   "change": null,
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "ReservationEvent and InboundMessage are append-only by DB trigger. Host schedule and hours edits (servicePeriod create/delete, blackout upsert/delete) still write no audit row.",
+   "evidence": "packages/db/prisma/migrations/20260918173221_reservation_model/migration.sql:136; packages/db/prisma/migrations/20260918220000_inbound_message/migration.sql:82; packages/db/schedule.ts:133-143",
+   "change": null,
+   "gap_reason": "Auditing schedule edits needs a new audit table or event type: a new audit-trail feature, which the brief excludes. Owner decision."
+  },
+  "K14": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "ignoreCommand is identical to the foundation's vercel.json; per-push deploys are off; the cron runs daily (0 14 * * *); port 3500 is the default in config (package.json and playwright); the cron route compares in constant time and fails closed.",
+   "evidence": "vercel.json:5-15; apps/web/package.json:6,8; apps/web/playwright.config.ts:11; apps/web/app/api/cron/sweep/route.ts:13-18",
+   "change": null,
+   "gap_reason": null
+  }
+ }
+}

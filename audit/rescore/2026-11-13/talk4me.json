@@ -1,0 +1,122 @@
+{
+ "row": "talk4me",
+ "repo": "shanelabountyai/talk4me",
+ "main_head": "2d104e7",
+ "branch_head": "e3b2fde",
+ "pr_url": "https://github.com/shanelabountyai/talk4me/pull/1",
+ "checks": "lint ok; typecheck (tsc -b) ok; vitest 22 files 152 pass 0 fail; npm run build ok; Playwright chromium on prod build 24 pass 4 skipped 0 fail; mobile-safari (WebKit) not run (no WebKit browser installed); VITE_TTS_PROVIDER=bogus build fails as intended",
+ "cells": {
+  "K1": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No accounts, sessions or sign-in links: a local-first SPA with IndexedDB storage and one stateless API function. Full sweep of api/ and src/ on main 2d104e7.",
+   "evidence": "api/tts.ts (only function); src/store/db.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K2": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No privileged server users. The caregiver PIN is a client-side UX lock on one device, not a role (SEC-04, by design).",
+   "evidence": "src/routes/RequireEditPin.tsx:18",
+   "change": null,
+   "gap_reason": null
+  },
+  "K3": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "On the branch, /api/tts returns 403 before any upstream spend unless Origin matches the host and Sec-Fetch-Site is same-origin. Headers can be forged, so this is hardening and not an auth guard; the route is still public by design. Vercel SSO currently fronts it, which is platform protection. Read the full handler.",
+   "evidence": "api/tts.ts:88-92,159-171 (branch); api/_tests/tts.handler.test.ts",
+   "change": "06bb04e: same-origin gate + handler tests (moved to api/_tests/)",
+   "gap_reason": "A real gate means a new auth mechanism (e.g. a signed per-session nonce), which is design work. The alternative is an owner decision-log row accepting 'public by design'. The gap plan lists it as Step 4 design work."
+  },
+  "K4": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No server-side records and no reads or writes by id; all data stays in the browser's IndexedDB. Full sweep of api/.",
+   "evidence": "api/tts.ts (stateless proxy)",
+   "change": null,
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "main has NO rate limit on /api/tts. The 2026-11-10 cell cited an in-memory limiter from 5505c68, but that commit does not exist on the remote (git cat-file fails; main is 2d104e7). MAX_CHARS is still 10,000 and any regex-valid voiceId is accepted. Full read of api/tts.ts.",
+   "evidence": "api/tts.ts:39,42 (branch); no limiter anywhere in api/",
+   "change": null,
+   "gap_reason": "A shared-store limit needs a Vercel Firewall rule (touching Vercel is out of scope for agents) or a new KV/Upstash account, so it is an owner action. Cheaper partial steps change behaviour and also need an owner call: MAX_CHARS ~500 on server and client, and a server allowlist of the two voice ids. OPS-01 (ElevenLabs spend cap) is the only hard bound today."
+  },
+  "K6": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No share or token links exist.",
+   "evidence": "src/App.tsx routes; api/ has only tts.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K7": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, vercel.json sets Referrer-Policy strict-origin-when-cross-origin, nosniff, X-Frame-Options DENY, CSP frame-ancestors 'none' and HSTS max-age=63072000 on /(.*), matching the foundation. Checked by a config test only: vite preview does not apply vercel.json and it has not been deployed. Confirm with curl -sI after the manual deploy.",
+   "evidence": "vercel.json:12-39 (branch); api/_tests/vercel-headers.test.ts",
+   "change": "db3506a: headers block + test",
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "ELEVENLABS_API_KEY is server-only, read via the validated env, sent in a header (not the query string), and fails closed with a 503 when unset. The only client var is VITE_TTS_PROVIDER (not a secret). git ls-files shows only .env.example tracked. There is no inbound secret, so no compare is needed.",
+   "evidence": "api/tts.ts:94-100,122 (branch); .env.example; .gitignore:14-16",
+   "change": null,
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No webhooks.",
+   "evidence": "api/ has only tts.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, an upstream failure logs only the status and cancels the body unread. The other logs carry no text: the key-missing message and the fetch exception (whose URL holds only the voiceId). A missing key in production logs loudly at boot and per request.",
+   "evidence": "api/tts.ts:77,98,129,136 (branch); api/_tests/tts.handler.test.ts",
+   "change": "39f6be0: status-only log + test that fails on old code",
+   "gap_reason": null
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, parseServerEnv validates ELEVENLABS_API_KEY and VERCEL_ENV at cold start and names keys only. A Vite configResolved plugin fails dev, build and preview on an unknown VITE_TTS_PROVIDER (verified: a bogus value fails the build). .env.example lists every var read (VERCEL_ENV and E2E_DEV added as comments), enforced by a scan test. The gap plan listed K11 as an 'accepted' candidate; the caller asked for the fix anyway since it was trivial.",
+   "evidence": "api/tts.ts:58-78 (branch); vite.config.ts:13-21,26; .env.example; api/_tests/env.test.ts",
+   "change": "e3b2fde: server env schema + client env check + .env.example + test",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No database. e2e already runs on a production build (build && vite preview).",
+   "evidence": "package.json:16; playwright.config.ts:33",
+   "change": null,
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No privileged server-side changes to audit; the function is stateless.",
+   "evidence": "api/tts.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K14": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "ignoreCommand matches the foundation and CLAUDE.md form character for character. Per-push deploys are off (deploymentEnabled false). Port 3800 is set in vite server/preview and the package scripts. There are no cron routes.",
+   "evidence": "vercel.json:2-5; vite.config.ts server/preview port 3800; package.json:7,9,14",
+   "change": null,
+   "gap_reason": null
+  }
+ }
+}

@@ -1,0 +1,122 @@
+{
+ "row": "rental-business",
+ "repo": "shanelabountyai/rental-business",
+ "main_head": "802925ba",
+ "branch_head": "3e839002",
+ "pr_url": "https://github.com/shanelabountyai/rental-business/pull/3",
+ "checks": "Local (Node 24): lint ok (0 errors, the same 16 warnings as main); typecheck ok; check:ship-deps clean; non-DB vitest 301 pass. GitHub CI run 43551305731 on 3e839002, all green: migrations from scratch, drift check, lint, typecheck, ship-deps, vitest 3985 passed / 4 skipped / 0 failed (305 files, real Postgres, including the new token-lookup DB test), next build, then e2e on a production build: 1425 passed, 4 skipped, 1 flaky (1430 total; the flaky one is the unrelated mobile-chrome screening.spec.ts:478, which passed on retry), plus Lighthouse. Environment limit: locally the Prisma query engine is blocked (binaries.prisma.sh) and next/font needs Google Fonts, so DB tests, build and e2e ran only in CI.",
+ "cells": {
+  "K1": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, tenant and guarantor sign-out bump sessionsValidFrom on the session's own row (scoped by orgId) before signOut(). The jwt callback re-reads the watermark on every request. Staff use signOutEverywhere. Tokens are stored hashed, and magic links are redeemed only by a POST route handler. Checked by reading the code (full trace of auth.ts, org.ts and the portal/auth actions) plus a new unit test.",
+   "evidence": "apps/web/lib/portal/actions.ts:12-42; apps/web/auth.ts:286-312; apps/web/lib/auth/org.ts:72-106; apps/web/lib/auth/actions.ts:233-255; apps/web/app/portal/verify/redeem/route.ts:6",
+   "change": "8253247b: signOutTenant/signOutGuarantor call revokeOwnPortalSessions (watermark bump) before signOut; test lib/portal/sign-out.test.ts",
+   "gap_reason": null
+  },
+  "K2": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "PRIVILEGED_PERMISSIONS (moving money, staff.manage, lease.execute, accesscode.reveal and others) need mfaVerified. This is enforced in can() and in the requirePermission/requireScope guards, not in a layout. Staff MFA is password, then a single-use challenge, then TOTP, with the limit on the callback route. Platform admins must be enrolled in MFA. Traced line by line this pass, not a spot check.",
+   "evidence": "packages/core/rbac/permissions.ts:210-252; packages/core/rbac/can.ts:95-121; apps/web/lib/auth/guard.ts:108-133,230-247; apps/web/auth.ts:89-150; apps/web/platform-auth.ts:86",
+   "change": null,
+   "gap_reason": null
+  },
+  "K3": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Every 'use server' export reaches a session guard or is allowlisted with a token reason (server-actions.test.ts). Every page and route is checked by route-guards.test.ts (218 cases pass). My own sweep found only three exports guarded by a bare auth(), and each one checks principal.kind. The only pages without a guard are the sign-in and verify pages. Checked with the tests plus a manual sweep.",
+   "evidence": "apps/web/lib/server-actions.test.ts:20-96; apps/web/app/route-guards.test.ts; apps/web/lib/auth/actions.ts:261-290",
+   "change": null,
+   "gap_reason": null
+  },
+  "K4": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "The 324-entry-point sweep fixes (SEC-09 to SEC-15) are in place. currentScope has no default, and its callers are covered by a source test. A spot check of sampled by-id writes (filing-cabinet setCostBasis, evictions stage update) found an org/scope-checked read before each write. Not re-swept in full this pass.",
+   "evidence": "apps/web/lib/filing-cabinet/actions.ts:69-86; apps/web/lib/scope/current-scope-callers.test.ts; apps/web/lib/auth/cross-property-ids.test.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On main, sign-in, MFA, reset, magic-link, inquiry and upload were limited in Postgres, but token reads and token actions were not. On the branch, every unauthenticated token lookup goes through withTokenMissLimit: AuthToken links, the calendar feed, redeemToken, the MFA challenge peek, OrgInvite and FinalExportLink. Each miss spends from a per-IP RATE_LIMITS.tokenLookupMiss budget (30 per 15 min) in RateLimitCounter. Full sweep of the token lookups.",
+   "evidence": "apps/web/lib/auth/store.ts:86-139; packages/core/auth/rate-limit.ts:54-59; apps/web/lib/portal/pay-link.ts:145; apps/web/app/api/calendar/[token]/route.ts:42; apps/web/lib/auth/token-lookup.test.ts",
+   "change": "3e839002: withTokenMissLimit/lookupAuthToken + rateLimitSpent; 16 lookup sites routed through it; DB test token-lookup.test.ts",
+   "gap_reason": null
+  },
+  "K6": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "On the branch, every token path and token-gated byte route sends Cache-Control: private, no-store and X-Robots-Tag: noindex, and a test fails if a [token] route has no rule. Tokens are hashed with a TTL and revocable, and publicListing uses an allowlisted select. Referrer-Policy is still same-origin rather than no-referrer.",
+   "evidence": "apps/web/next.config.ts:28-64; apps/web/next-config.test.ts; apps/web/app/sign/[token]/document/route.ts:35; apps/web/lib/listings/queries.ts:33-64",
+   "change": "cb75e58d: no-store + noindex path rules (invite, final-export, reset-password added); byte routes max-age=300 -> no-store",
+   "gap_reason": "Referrer-Policy is same-origin on purpose (SEC-08). With no-referrer, a native form POST sends Origin: null, Next's Server Action check refuses it, and every no-JS form on these token pages breaks. Closing this needs an owner decision: either accept same-origin (a decision-log row) or redesign the token pages so they don't rely on no-JS form posts."
+  },
+  "K7": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "/:path* sets Referrer-Policy same-origin, nosniff, X-Frame-Options DENY and HSTS (2y, includeSubDomains). The proxy CSP sets frame-ancestors 'none'. Checked against the config and the existing config test.",
+   "evidence": "apps/web/next.config.ts:46-54; apps/web/proxy.ts:107-110; apps/web/next-config.test.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Cron uses timingSafeEqual and fails closed when CRON_SECRET is unset, through the shared cronRoute on all three cron routes. The inbound-email secret is header-only and compared in constant time, and returns 503 when unset. Stripe/Resend/Twilio verifiers compare in constant time and reject when unset. The NEXT_PUBLIC_ vars (APP_URL, OPERATIONS_PHONE, STRIPE_PUBLISHABLE_KEY) are not secrets, and the only env file tracked is .env.example. I grepped for non-constant compares and found none.",
+   "evidence": "apps/web/lib/cron/authorize.ts:14-24; apps/web/lib/cron/per-org.ts:51; apps/web/app/api/email/inbound/route.ts:95-132; packages/core/billing/webhook-signature.ts:95-98",
+   "change": null,
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Stripe: the signature is checked on request.text() with a 300s window. The handler claims the event with a ProcessedStripeEvent insert, and a throw marks it failed so Stripe's retry can retake it (stale claims after 15 min too). Resend: Svix signature with a 300s window, and status updates are monotonic (shouldApplyStatus). Twilio's scheme has no timestamp; inbound is idempotent on MessageSid. Full read this pass.",
+   "evidence": "apps/web/lib/billing/webhook-route.ts; apps/web/lib/billing/webhook.ts:78-151; packages/core/billing/webhook-signature.ts:39,92-110; packages/core/comms/webhook-signature.ts:96-115; apps/web/app/api/webhooks/resend/route.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "On Vercel, the logging adapter logs only the externalId: no body, no recipient. In production, a channel with no provider records SUPPRESSED/unsupported_channel instead of SENT. The other console calls are in simulated adapters and log ids, not tokens. One note: without STRIPE_SECRET_KEY, billing uses the simulator by design (PRD 00 §14). Checked with a full grep of console output plus the adapter code.",
+   "evidence": "apps/web/lib/notifications/logging-adapter.ts:26-45; apps/web/lib/notifications/live-adapter.ts:27-40; apps/web/lib/billing/provider.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "On the branch, assertEnv runs at boot (instrumentation.ts) over CHECKS, which now covers all 33 app-read variables, up from 6. env-coverage.test.ts scans source for env reads and fails on any name missing from CHECKS or .env.example. RLS_ENFORCE was missing from .env.example and is now added. Full sweep.",
+   "evidence": "apps/web/lib/env.ts:34-110; apps/web/instrumentation.ts:3-10; apps/web/lib/env-coverage.test.ts; .env.example",
+   "change": "10a02fa7: CHECKS 6 -> 33 with shape checks; PLATFORM_SET; coverage test; RLS_ENFORCE in .env.example",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "The vitest globalSetup refuses any DATABASE_URL whose host isn't localhost/127.0.0.1. The demo seed has its own guard. e2e runs a production build (build:test + start:test). Checked by reading the code.",
+   "evidence": "packages/db/test-database-guard.ts; vitest.global-setup.ts:1-6; playwright.config.ts:13; packages/db/prisma/demo-database-guard.mts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "AuditLog has BEFORE UPDATE/DELETE row triggers and a TRUNCATE statement trigger (reject_mutation). No later migration drops or disables them (grepped). LedgerEntry, Message and Notice are append-only too.",
+   "evidence": "packages/db/prisma/migrations/20260801152520_core_data_model/migration.sql:1102-1124",
+   "change": null,
+   "gap_reason": null
+  },
+  "K14": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "The vercel.json ignoreCommand cds to the repo root and diffs against VERCEL_GIT_PREVIOUS_SHA, falling back to a build. Port 3100 is the default in playwright and the npm scripts. All cron routes go through cronRoute and its constant-time, fail-closed isAuthorizedCron.",
+   "evidence": "apps/web/vercel.json:6; playwright.config.ts:13; apps/web/lib/cron/per-org.ts:51; apps/web/lib/cron/authorize.ts:14-24",
+   "change": null,
+   "gap_reason": null
+  }
+ }
+}

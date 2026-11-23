@@ -1,0 +1,122 @@
+{
+ "row": "bookable",
+ "repo": "shanelabountyai/bookable-appointment-service",
+ "main_head": "77c184d",
+ "branch_head": "d2c3db2",
+ "pr_url": "https://github.com/shanelabountyai/bookable-appointment-service/pull/3",
+ "checks": "Node 24. lint ok; typecheck ok; vitest 886 pass, 2 fail, 1267 skipped, 80 files failed. That is the same 80-file set as main in this sandbox: Prisma's query engine can't be downloaded (binaries.prisma.sh blocked), so every Prisma-backed test fails at client init. No new failures; 25 new tests pass. e2e not run: next build fails here (fonts.googleapis.com blocked for next/font, and no query engine). GitHub CI 'gate' was in progress when this was written. GitHub CI run 43547934244 on d2c3db2 then passed in full: lint, typecheck, migrations from scratch, drift check, the unit suite under TZ=UTC and TZ=Pacific/Kiritimati with real Postgres and the Prisma engine, and e2e on a production build at port 3300.",
+ "cells": {
+  "K1": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Stateless HMAC cookie (8h TTL) with the staff row re-read each request: only deactivating the whole user invalidates sessions. There's no per-session row or watermark, and logout only deletes the client cookie, so a stolen cookie for an active user lasts until expiry. Manage tokens and API/MCP keys are stored hashed; sign-in is password via POST server action, no sign-in links. Checked by reading the session code. This is stricter than the 2026-11-10 ✔.",
+   "evidence": "packages/core/auth/session.ts:125; apps/web/lib/auth/session.ts:55-66; packages/db/auth/staff.ts:141-146; packages/core/auth/manage-token.ts:47-56",
+   "change": null,
+   "gap_reason": "Server-side revocation needs a session table or a per-user session watermark (e.g. sessionsValidAfter compared with a signed iat). That's a new session mechanism, which the brief says not to build. Needs an owner decision: build it or accept the risk in the decision log."
+  },
+  "K2": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "No second factor anywhere; requireOwner is role-only. Checked by grep for mfa/totp and by reading the guards.",
+   "evidence": "apps/web/lib/auth/session.ts:159-160",
+   "change": null,
+   "gap_reason": "New MFA/TOTP system is design work, not built per brief. Needs an owner decision: build the foundation's TOTP plus server-guard pattern (INV-22..26), or record an accepted-risk decision row."
+  },
+  "K3": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Full sweep: all 24 'use server' files and their exports (each starts with requireStaff/requireOwner/requireDesk or actorStamp, which calls requireStaff; public booking, manage-token and login/logout are open by design; manage actions go through openManageLink; readableRefusal is pure). All 27 staff pages call a guard or a guarded list action; all /api/v1 handlers go through api() (hashed key plus scope); cron routes use a constant-time bearer; MCP checks its bearer in handleMcpRequest.",
+   "evidence": "apps/web/lib/auth/session.ts:133,159,208; apps/web/lib/settings/availability-actions.ts:75-77; apps/web/lib/api/http.ts:60-82; apps/web/app/api/jobs/reminders/route.ts:41-45; apps/web/app/api/mcp/route.ts:18",
+   "change": null,
+   "gap_reason": null
+  },
+  "K4": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Spot check, not a full sweep: by-id writes and reads scope on businessId (deleteTimeOff, webhook endpoints via ownEndpoint/findFirst, availability actions). The unscoped where:{id} hits I found use ids read from an already-scoped row, or feed a businessId-scoped query (resources.ts, webhooks.ts). packages/db/tenant-isolation.test.ts (10 cases) exists, but DB tests couldn't run here.",
+   "evidence": "packages/db/availability/availability.ts:375-383; apps/web/lib/api/webhook-endpoints.ts:62-63,95-99; packages/db/booking/resources.ts:185-199; packages/db/tenant-isolation.test.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "DB-backed limiter (one atomic INSERT ... ON CONFLICT ... RETURNING statement) on login (keyed by email), the public booking write, every manage-token action and page, each API key, and MCP. Checked by reading the call sites.",
+   "evidence": "packages/db/rate-limit.ts:37; packages/db/auth/staff.ts:96; apps/web/lib/booking/public-actions.ts:454; apps/web/lib/manage/token-gate.ts:36; apps/web/lib/api/http.ts:80; apps/mcp/src/server.ts:59",
+   "change": null,
+   "gap_reason": null
+  },
+  "K6": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Manage tokens: 256-bit, sha256-hashed at rest, expire 24h after the appointment ends, revokedAt column, select projection. On main, no-referrer was a header and noindex came from metadata on a dynamic page. The branch adds explicit X-Robots-Tag noindex and Cache-Control no-store headers on /manage/:token*. Tested against the real next.config.",
+   "evidence": "packages/core/auth/manage-token.ts:34-61; packages/db/prisma/schema.prisma:1213-1222; apps/web/app/manage/[token]/page.tsx:32-34; apps/web/next.config.ts:43-48; apps/web/lib/security-headers.test.ts",
+   "change": "4268ff8: X-Robots-Tag and Cache-Control no-store on /manage/:token*, plus a test",
+   "gap_reason": null
+  },
+  "K7": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Branch: Referrer-Policy strict-origin-when-cross-origin, nosniff, CSP frame-ancestors 'none', X-Frame-Options DENY and HSTS on /:path*. The manage no-referrer rule is listed after the global one so it wins. Main only had Referrer-Policy on /manage. Verified by a unit test on next.config; not verified on a running server, because next build is blocked here (Google Fonts).",
+   "evidence": "apps/web/next.config.ts:7-13,38; apps/web/lib/security-headers.test.ts",
+   "change": "80a4e81: global securityHeaders block in next.config headers(), poweredByHeader false, plus a test",
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Cron routes use constantTimeEqual and throw when CRON_SECRET is unset; the session signature compare is constant-time; the demo gate uses a length-checked constant-time compare; SESSION_SECRET fails closed; no NEXT_PUBLIC_/VITE_ vars; only .env.example tracked; no secrets in query strings. Checked by grep and reading.",
+   "evidence": "apps/web/app/api/jobs/reminders/route.ts:30-45; apps/web/app/api/jobs/webhooks/route.ts:19-22; packages/core/auth/session.ts:92,144-147; apps/web/lib/demo-gate.ts:25-30,60; apps/web/lib/auth/session.ts:28-35",
+   "change": null,
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "N/A",
+   "s_branch": "N/A",
+   "text": "No inbound webhook endpoints. All route handlers listed: jobs, mcp, /api/v1 only. Webhooks are outbound, signed by this app.",
+   "evidence": "apps/web/app/api (17 route.ts files); apps/web/lib/api/webhook-signature.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "Branch: the logging adapter logs only payload keys unless logPayloadValues is set, and provider.ts sets it only when NODE_ENV !== 'production'. manageUrl no longer reaches production logs (tested). Still open: production runs the logging adapter as its only provider, so a missing provider does not fail loudly.",
+   "evidence": "packages/core/notifications/logging-adapter.ts:23-56; packages/db/notifications/provider.ts:12-16; packages/core/notifications/logging-adapter.test.ts",
+   "change": "77b8c88: payload values redacted from adapter logs by default; dev keeps them",
+   "gap_reason": "The 'missing provider in prod fails loudly' half needs either a real provider (new Resend/Twilio accounts and secrets) or making production refuse to send, which changes demo behaviour. Needs an owner decision (or an accepted-risk decision row)."
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Branch: zod schema apps/web/lib/env.ts, validated at Node server boot in apps/web/instrumentation.ts (DATABASE_URL and SESSION_SECRET required, the rest optional with unchanged meaning; errors name keys only). .env.example now names every process.env var the code reads. env.test.ts scans apps/packages/scripts and fails on any missing name. Boot behaviour itself is not exercised here, because next build is blocked.",
+   "evidence": "apps/web/lib/env.ts:16-45; apps/web/instrumentation.ts:5-9; .env.example; apps/web/lib/env.test.ts",
+   "change": "d2c3db2: env schema plus instrumentation boot check, complete .env.example, source-scan test",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Branch: packages/db/testing/local-guard.ts allows only local hosts or a unix socket (ALLOW_CLOUD_DB=1 escape hatch) and runs in resetDatabase (vitest DB tests, the e2e per-test fixture, the MCP eval) and from a vitest setupFile. Verified that a Neon URL aborts the vitest run. Local Postgres and e2e on a production build already existed.",
+   "evidence": "packages/db/testing/local-guard.ts; packages/db/testing/reset.ts:92; vitest.setup.ts:6; vitest.config.ts; apps/web/playwright.config.ts:35",
+   "change": "2e2ac8a: local-DB guard plus tests, wired into resetDatabase and the vitest setupFiles",
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "✗",
+   "s_branch": "✗",
+   "text": "AppointmentEvent and ClientNoteVersion are append-only by trigger, but there's no table logging privileged changes (staff roles, settings, API keys, webhooks, owner actions). Checked the full model list and grepped the migrations for triggers.",
+   "evidence": "packages/db/prisma/schema.prisma (model list); packages/db/prisma/migrations/20260815162006_core_data_model/migration.sql:665-674; packages/db/prisma/migrations/20260922120000_client_note_version/migration.sql:27-36",
+   "change": null,
+   "gap_reason": "No privileged-change audit table exists to put a trigger on, so the fix would be a new audit-trail feature, which the brief excludes. Needs an owner decision: build it (foundation src/core/audit.ts plus append-only trigger) or accept the risk."
+  },
+  "K14": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "vercel.json ignoreCommand matches the foundation's byte for byte; port 3300 in dev/start scripts and the playwright config; the cron route is constant-time and fails closed.",
+   "evidence": "vercel.json:7; apps/web/package.json:6,8; apps/web/playwright.config.ts:30,37; apps/web/app/api/jobs/reminders/route.ts:30-45",
+   "change": null,
+   "gap_reason": null
+  }
+ }
+}

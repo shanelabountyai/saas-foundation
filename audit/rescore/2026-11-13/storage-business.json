@@ -1,0 +1,122 @@
+{
+ "row": "storage-business",
+ "repo": "shanelabountyai/self-storage-app",
+ "main_head": "f80e5f80",
+ "branch_head": "dc11c895",
+ "pr_url": "https://github.com/shanelabountyai/self-storage-app/pull/29",
+ "checks": "lint ok (0 errors, 11 pre-existing warnings); typecheck ok (app + tests); check:ship-deps clean; vitest 2812 pass / 10 fail / 2214 skipped. All 10 failures are DB suites that do not skip without a database (public-rate-limit-db, auth-audience-db). 9 fail the same way on main; the 10th is the new K5 DB case. Environment limit: binaries.prisma.sh is blocked, so the Prisma client was generated with --no-engine and no DB suite, next build, db:drift or e2e could run. New non-DB tests all pass. Both configs were checked by hand to refuse a Neon URL. PR opened as a draft (repo rule).",
+ "cells": {
+  "K1": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Re-read on main: the jwt callback calls sessionStillValid on every auth() call, so a deleted account or a moved sessionsValidFrom watermark ends the session. The magic link lands on a page and is spent by a POST action; pay, checkout and reset tokens are hashed. Spot check of the cited lines.",
+   "evidence": "apps/web/auth.ts:21-33; apps/web/lib/auth/accounts.ts:220-255; apps/web/app/(auth)/login/magic/page.tsx:15-40; apps/web/lib/portal/pay-links.ts:130-134",
+   "change": null,
+   "gap_reason": null
+  },
+  "K2": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "requireStaffActor checks needsMfaEnrollment against the database on every call. allowUnenrolled is passed only by /mfa. Re-read on main.",
+   "evidence": "apps/web/lib/rbac/session.ts:47-65",
+   "change": null,
+   "gap_reason": null
+  },
+  "K3": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Grep sweep of all 31 route.ts files for a guard. Four had no auth call, and each is public by design: marketplace/leads checks a key and returns 401; the marketplace availability feed and the IndexNow key file are public; /r/[code] is a referral redirect. Re-read the cron and staff action guards. Did not re-read every one of the 68 'use server' files line by line.",
+   "evidence": "apps/web/app/api/cron/route.ts:43-56; apps/web/app/api/public/marketplace/leads/route.ts:15-19; apps/web/app/admin/tenants/[tenantId]/ledger/[leaseId]/actions.ts:135,196,236",
+   "change": null,
+   "gap_reason": null
+  },
+  "K4": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Traced the NEXT.md caveat. On main, both echo reads (confirmCorrection, ledger-exceptions subject) run only after correctableLease, voidRentInvoice or acknowledgeLedgerException has called assertFacilityAccess, which throws, so they were not exploitable. On the branch both reads also carry facilityScope(actor) as defence in depth.",
+   "evidence": "apps/web/lib/billing/corrections.ts:82-90,380-394; apps/web/lib/admin/ledger.ts:406-412; apps/web/app/admin/tenants/[tenantId]/ledger/[leaseId]/actions.ts:39-62; apps/web/app/admin/reports/ledger-exceptions/actions.ts:62-68",
+   "change": "8094e112: echo reads use lease.findFirst({id, ...facilityScope(actor)}); tests/ledger-echo-scope.test.ts",
+   "gap_reason": null
+  },
+  "K5": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Main had DB limits on checkout starts, promo checks, auth links, login and lead/waitlist. Two gaps: the anonymous reservation hold (reserveAction) was unthrottled, as NEXT.md itself noted, and URL-token reads had no limit. The branch adds mayReserve and mayReadToken on the same RateLimitEvent limiter. They cover reserveAction and the lookups on /pay, /pay/expired, /waitlist/cancel, /reservations?token and /r/[code]. Loopback is exempt.",
+   "evidence": "apps/web/lib/http/rate-limit.ts (mayReserve, mayReadToken); apps/web/app/(public)/storage/[state]/[city]/[slug]/reserve/actions.ts:50-54; apps/web/app/pay/[token]/page.tsx:56-58",
+   "change": "1630ac78: reservation-hold and token-read limits; tests/public-limit-wiring.test.ts (ran, passes) + cases in tests/public-rate-limit-db.test.ts (could not run here: no Prisma engine)",
+   "gap_reason": null
+  },
+  "K6": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Main: links were hashed, expiring and revocable, with noindex stamped by the proxy. There was no Cache-Control: no-store, and the token pages used the global strict-origin-when-cross-origin, not no-referrer. The branch's next.config.ts sets no-referrer, private no-store and X-Robots-Tag on all ten token routes, listed after the global block so they win.",
+   "evidence": "apps/web/next.config.ts (TOKEN_PAGE_SOURCES + headers()); packages/core/marketing/urls.ts:44-69; apps/web/lib/portal/pay-links.ts:130-134",
+   "change": "6b141309: token-page headers; tests/token-page-headers.test.ts; e2e/security-headers.spec.ts updated (e2e not run)",
+   "gap_reason": null
+  },
+  "K7": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "next.config.ts headers() on /:path* sets Referrer-Policy, nosniff, CSP frame-ancestors 'none', X-Frame-Options DENY and HSTS for 2 years. Re-read.",
+   "evidence": "apps/web/next.config.ts:headers(); e2e/security-headers.spec.ts",
+   "change": null,
+   "gap_reason": null
+  },
+  "K8": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Cron uses timingSafeEqual and fails closed when CRON_SECRET is unset. The demo gate compares in constant time. The only NEXT_PUBLIC_ vars are the Stripe publishable key, the Maps key/ID and the site URL, none of them secret. Only .env.example is tracked (git ls-files). Re-read.",
+   "evidence": "apps/web/app/api/cron/route.ts:43-53; apps/web/lib/demo-gate.ts:33-45; .env.example",
+   "change": null,
+   "gap_reason": null
+  },
+  "K9": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "Stripe constructEvent runs on the raw text body and enforces the timestamp tolerance. It fails closed (503) when the secret is unset. The event id is claimed by primary key, and a collision counts as a duplicate only if processedAt is set, so a failed event is re-applied. Re-read.",
+   "evidence": "apps/web/app/api/stripe/webhook/route.ts:20-76",
+   "change": null,
+   "gap_reason": null
+  },
+  "K10": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Main: with VERCEL_ENV=production and RESEND_API_KEY unset, selectProvider returned the log-only provider. The send was recorded as made, nothing was delivered, and sendAuthEmail then console.info'd the magic or reset URL, a live credential, to the production log. On the branch it throws before sending and never logs the link in production. No other logs of tokens or bodies found (grep of console.* calls).",
+   "evidence": "apps/web/lib/comms/provider.ts:203-207,268-273; apps/web/lib/auth/send-auth-email.ts (K10 guard, console.info gate)",
+   "change": "5b5b845e: fail loudly + no token log in production; tests/auth-email-production.test.ts",
+   "gap_reason": null
+  },
+  "K11": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Main had no schema-validated env, and .env.example missed NEXT_PUBLIC_SITE_URL, E2E_FORCE_ERROR and the platform/test vars. On the branch, apps/web/lib/env.ts is a zod schema of every app-read var. It requires DATABASE_URL and AUTH_SECRET and shape-checks URLs and VERCEL_ENV. instrumentation.ts parses it at Node boot. tests/env-schema.test.ts checks that the schema covers every process.env read in apps/packages and that .env.example lists every var read anywhere.",
+   "evidence": "apps/web/lib/env.ts; apps/web/instrumentation.ts; .env.example; tests/env-schema.test.ts",
+   "change": "dc11c895: zod env schema at boot + complete .env.example (zod promoted to a web dependency)",
+   "gap_reason": null
+  },
+  "K12": {
+   "s_main": "✗",
+   "s_branch": "✔",
+   "text": "Main: tests use a separate schema and e2e serves a production build. Nothing refused a cloud URL, though, and a missing .env.test fell through to .env.local's Neon branch. The branch adds scripts/local-db-guard.mts, called at load by vitest.config.ts and playwright.config.ts. It refuses Neon, RDS, Supabase and other cloud hosts in DATABASE_URL or DIRECT_URL unless ALLOW_CLOUD_DB=1. Checked by hand: both configs refuse a Neon URL.",
+   "evidence": "scripts/local-db-guard.mts; vitest.config.ts:3-8; playwright.config.ts:1-6; playwright.config.ts webServer (e2e:server = production build)",
+   "change": "580b51a7: config-load cloud-DB guard; tests/local-db-guard.test.ts",
+   "gap_reason": null
+  },
+  "K13": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "audit_log has BEFORE UPDATE/DELETE row triggers and a TRUNCATE trigger that raise an error. Grep found no auditLog.update/delete/upsert in app code. Re-read.",
+   "evidence": "packages/db/prisma/migrations/20260730174727_audit_log_append_only/migration.sql:21-40",
+   "change": null,
+   "gap_reason": null
+  },
+  "K14": {
+   "s_main": "✔",
+   "s_branch": "✔",
+   "text": "vercel.json ignoreCommand anchors to the repo root, deepens the clone, diffs from VERCEL_GIT_PREVIOUS_SHA excluding docs and *.md, and exits 1 on any failure. Port 3000 is the documented incumbent (playwright baseURL, next -p 3000). The cron is constant-time, fails closed and runs daily. Re-read.",
+   "evidence": "vercel.json:5-17; apps/web/package.json:6,8; playwright.config.ts:3; apps/web/app/api/cron/route.ts:43-53",
+   "change": null,
+   "gap_reason": null
+  }
+ }
+}
